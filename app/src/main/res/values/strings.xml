@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">landing_diary</string>
+    <string name="category_vegetables">Овощи</string>
+    <string name="category_herbs">Травы</string>
+    <string name="category_flowers">Цветы</string>
+    <string name="category_berries">Ягоды</string>
+    <string name="category_seedlings">Саженцы</string>
+    <string name="category_mushrooms">Грибы</string>
+    <string name="category_exotic">Экзотика</string>
+</resources>
