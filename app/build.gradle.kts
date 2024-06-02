@@ -60,6 +60,11 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.0")
+    implementation(libs.androidx.appcompat)
+  //  implementation ("com.sagar:coroutinespermission:2.0.3")
+    //implementation("androidx.compose.runtime:runtime:1.0.0-alpha11")
+    implementation ("com.google.accompanist:accompanist-permissions:0.29.0-alpha")
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

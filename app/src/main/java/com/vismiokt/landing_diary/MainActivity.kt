@@ -21,7 +21,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             Landing_diaryTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    LandingDiaryApp()
+                //    LandingDiaryApp()
+                    RequiredPermission()
                 }
             }
         }
