@@ -10,5 +10,6 @@ enum class CategoryPlant (@StringRes val title: Int) {
     berries(R.string.category_berries),
     seedlings(R.string.category_seedlings),
     mushrooms(R.string.category_mushrooms),
-    exotic(R.string.category_exotic)
+    exotic(R.string.category_exotic),
+    other(R.string.category_other)
 }

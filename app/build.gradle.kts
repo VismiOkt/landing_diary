@@ -1,6 +1,9 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.compose.compiler)
+
 }
 
 android {
@@ -40,7 +43,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
+        kotlinCompilerExtensionVersion = "1.5.4"
     }
     packaging {
         resources {
@@ -59,11 +62,16 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.0")
-    implementation(libs.androidx.appcompat)
-  //  implementation ("com.sagar:coroutinespermission:2.0.3")
-    //implementation("androidx.compose.runtime:runtime:1.0.0-alpha11")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.1")
     implementation ("com.google.accompanist:accompanist-permissions:0.29.0-alpha")
+    implementation(libs.androidx.ui.text.google.fonts)
+    //Room
+    implementation("androidx.room:room-runtime:${rootProject.extra["room_version"]}")
+    ksp("androidx.room:room-compiler:${rootProject.extra["room_version"]}")
+    implementation("androidx.room:room-ktx:${rootProject.extra["room_version"]}")
+ //   implementation("androidx.navigation:navigation-compose:2.7.7")
+
+
 
 
     testImplementation(libs.junit)
