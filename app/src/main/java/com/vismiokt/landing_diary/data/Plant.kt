@@ -1,13 +1,10 @@
 package com.vismiokt.landing_diary.data
 
-import android.icu.util.Calendar
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import java.time.LocalDate
-import java.util.Date
 
 @Entity(tableName = "plants")
-data class Plant (
+data class Plant(
     @PrimaryKey(autoGenerate = true)
     val id: Int,
     val nameVariety: String,

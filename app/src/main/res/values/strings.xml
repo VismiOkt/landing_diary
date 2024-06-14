@@ -9,4 +9,13 @@
     <string name="category_mushrooms">Грибы</string>
     <string name="category_exotic">Экзотика</string>
     <string name="category_other">Другое</string>
+    <string name="entry_plant_title">Новая запись</string>
+    <string name="entry_plant_price_input">Цена</string>
+    <string name="entry_plant_name_input">Название</string>
+    <string name="entry_plant_place_of_purchase_input">Место покупки</string>
+    <string name="entry_plant_result_input">Результат</string>
+    <string name="entry_plant_note_input">Примечание</string>
+    <string name="entry_plant_category_input">Категория</string>
+    <string name="entry_plant_time_plant_seeds_input">Дата посадки семян</string>
+
 </resources>

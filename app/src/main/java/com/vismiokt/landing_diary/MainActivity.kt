@@ -2,10 +2,12 @@ package com.vismiokt.landing_diary
 
 //import com.google.firebase.firestore.ktx.firestore
 //import com.google.firebase.ktx.Firebase
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
@@ -13,6 +15,7 @@ import com.vismiokt.landing_diary.ui.LandingDiaryApp
 import com.vismiokt.landing_diary.ui.theme.Landing_diaryTheme
 
 class MainActivity : ComponentActivity() {
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 //        val fs = Firebase.firestore
@@ -20,10 +23,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             Landing_diaryTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    LandingDiaryApp()
-//                    RequiredPermission()
-                }
+                LandingDiaryApp()
             }
         }
     }
