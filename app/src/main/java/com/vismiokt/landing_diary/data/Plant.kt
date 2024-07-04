@@ -9,11 +9,11 @@ data class Plant(
     val id: Int,
     val nameVariety: String,
     val category: CategoryPlant = CategoryPlant.other,
-    val timePlantSeeds: String = "",
-    val dateLanding: String = "",
+    val timePlantSeeds: Long = 0,
+    val dateLanding: Long = 0,
     val price: Float = 0.0f,
     val placeOfPurchase: String = "",
-    val result: String = "",
+    val result: ResultPlant = ResultPlant.unknown,
     val note: String = ""
 
 ) {

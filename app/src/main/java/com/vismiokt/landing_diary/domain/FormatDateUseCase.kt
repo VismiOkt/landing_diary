@@ -2,6 +2,7 @@ package com.vismiokt.landing_diary.domain
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import com.vismiokt.landing_diary.ui.PlantDetails
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -34,14 +35,32 @@ class FormatDateUseCase {
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun dateToString(date: LocalDate): String {
-        val dateFormatter = DateTimeFormatter.ofPattern("EEEE, dd MMMM, yyyy", Locale.getDefault())
+        val dateFormatter = DateTimeFormatter.ofPattern("dd MMMM yyyy", Locale.getDefault())
         val dateInMillis = convertMillisToLocalDateWithFormatter(date, dateFormatter)
         return dateFormatter.format(dateInMillis)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    operator fun invoke(date: Long): String {
-        return dateToString(convertMillisToLocalDate(date))
+    fun convertLocalDateToMillis(date: LocalDate) : Long {
+        return date
+            .atStartOfDay(ZoneId.systemDefault())
+            .toInstant()
+            .toEpochMilli()
     }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun getDateNow(): String {
+        return FormatDateUseCase().dateToString(LocalDate.now(ZoneId.systemDefault()))
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun getDateSet(plantDetails: PlantDetails): String {
+        return FormatDateUseCase().dateToString(FormatDateUseCase().convertMillisToLocalDate(plantDetails.timePlantSeeds))
+    }
+
+//    @RequiresApi(Build.VERSION_CODES.O)
+//    operator fun invoke(date: Long): String {
+//        return dateToString(convertMillisToLocalDate(date))
+//    }
 
 }

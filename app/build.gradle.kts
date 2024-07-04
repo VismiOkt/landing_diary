@@ -65,6 +65,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.1")
     implementation ("com.google.accompanist:accompanist-permissions:0.29.0-alpha")
     implementation(libs.androidx.ui.text.google.fonts)
+    implementation("io.coil-kt:coil-compose:2.5.0")
     //Room
     implementation("androidx.room:room-runtime:${rootProject.extra["room_version"]}")
     implementation(libs.androidx.navigation.runtime.ktx)

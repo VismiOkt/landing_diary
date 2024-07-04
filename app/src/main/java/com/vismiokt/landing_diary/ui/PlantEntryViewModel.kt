@@ -1,16 +1,24 @@
 package com.vismiokt.landing_diary.ui
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.vismiokt.landing_diary.data.CategoryPlant
 import com.vismiokt.landing_diary.data.Plant
 import com.vismiokt.landing_diary.data.PlantsRepository
+import com.vismiokt.landing_diary.data.ResultPlant
+import com.vismiokt.landing_diary.domain.FormatDateUseCase
+import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.ZoneId
 
 class PlantEntryViewModel(private val repository: PlantsRepository) : ViewModel() {
 
-    var plantUiState by mutableStateOf(PlantUiState())
+    var plantUiState by mutableStateOf(PlantEntryUiState())
         private set
 
     private fun validatePlant(plantDetails: PlantDetails = plantUiState.plantDetails): Boolean {
@@ -18,34 +26,49 @@ class PlantEntryViewModel(private val repository: PlantsRepository) : ViewModel(
     }
 
     fun updateUiState(plantDetails: PlantDetails) {
-        plantUiState = PlantUiState(plantDetails = plantDetails, isEntryValid = validatePlant(plantDetails))
+        plantUiState = PlantEntryUiState(
+            plantDetails = plantDetails,
+            isEntryValid = validatePlant(plantDetails)
+        )
     }
 
-    suspend fun savePlant() {
-        if(validatePlant()) {
-            repository.insertPlant(plantUiState.plantDetails.toPlant())
+    fun savePlant() {
+        if (validatePlant()) {
+            viewModelScope.launch {
+                repository.insertPlant(plantUiState.plantDetails.toPlant())
+            }
+
         }
     }
 
+    fun closeDatePickerDialog() {
+        plantUiState = plantUiState.copy(openDialogCalendar = false)
+
+    }
+
+    fun openDatePickerDialog() {
+        plantUiState = plantUiState.copy(openDialogCalendar = true)
+    }
 
 
 
 }
 
-data class PlantUiState(
+data class PlantEntryUiState(
     val plantDetails: PlantDetails = PlantDetails(),
-    val isEntryValid: Boolean = false
+    val isEntryValid: Boolean = false,
+    val openDialogCalendar: Boolean = false
 )
 
 data class PlantDetails(
     val id: Int = 0,
     val nameVariety: String = "",
     val category: CategoryPlant = CategoryPlant.other,
-    val timePlantSeeds: String = "",
-    val dateLanding: String = "",
+    val timePlantSeeds: Long = 0,
+    val dateLanding: Long = 0,
     val price: String = "",
     val placeOfPurchase: String = "",
-    val result: String = "",
+    val result: ResultPlant = ResultPlant.unknown,
     val note: String = ""
 )
 
@@ -60,3 +83,16 @@ fun PlantDetails.toPlant(): Plant = Plant(
     result = result,
     note = note
 )
+
+fun Plant.toPlantDetails(): PlantDetails = PlantDetails(
+    id = id,
+    nameVariety = nameVariety,
+    category = category,
+    timePlantSeeds = timePlantSeeds,
+    dateLanding = dateLanding,
+    price = price.toString(),
+    placeOfPurchase = placeOfPurchase,
+    result = result,
+    note = note
+)
+
