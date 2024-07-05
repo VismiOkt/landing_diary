@@ -10,6 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.vismiokt.landing_diary.RequiredPermission
 import com.vismiokt.landing_diary.ui.HomeScreen
 import com.vismiokt.landing_diary.ui.PlantCard
 import com.vismiokt.landing_diary.ui.PlantEditScreen
@@ -44,11 +45,15 @@ fun LdNavigation(
         }
         composable(route = Screen.PlantEntryDestination.route) {
             PlantEntryScreen(
-                navigateBack = { navController.navigateUp() }
+                navigateBack = { navController.navigateUp() },
+                navigateCamera = { navController.navigate(Screen.RequiredPermissionDestination.route) }
             )
         }
         composable(route = Screen.PlantEditDestination.route) {
             PlantEditScreen()
+        }
+        composable(route = Screen.RequiredPermissionDestination.route) {
+            RequiredPermission()
         }
     }
 

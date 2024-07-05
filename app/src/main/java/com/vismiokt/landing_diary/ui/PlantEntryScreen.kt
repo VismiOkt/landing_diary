@@ -2,6 +2,7 @@ package com.vismiokt.landing_diary.ui
 
 import android.annotation.SuppressLint
 import android.os.Build
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -55,7 +56,8 @@ import java.util.Locale
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun PlantEntryScreen(
-    navigateBack: () -> Unit
+    navigateBack: () -> Unit,
+    navigateCamera: () -> Unit
 
 ) {
     val viewModel: PlantEntryViewModel = viewModel(factory = AppViewModelProvider.Factory)
@@ -80,6 +82,7 @@ fun PlantEntryScreen(
             },
             dateNow = FormatDateUseCase().getDateNow(),
             dateSet = { FormatDateUseCase().getDateSet(it) },
+            requiredPermission = navigateCamera,
             modifier = Modifier
                 .verticalScroll(rememberScrollState())
                 .padding(
@@ -103,6 +106,7 @@ fun PlantEntryBody(
     onSave: () -> Unit,
     dateNow: String,
     dateSet: (PlantDetails) -> String,
+    requiredPermission: () -> Unit,
     modifier: Modifier
 ) {
 
@@ -287,7 +291,13 @@ fun PlantEntryBody(
                 .fillMaxWidth()
                 .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
         )
-        PhotoSelectorView()
+        PhotoPickerDemoScreen (
+            saveImg = { onValueChange(plantDetails.copy(uriImg = it)) }
+        )
+        Button(onClick = { requiredPermission() }) {
+            Text(text = "camera")
+        }
+
         Button(
             onClick = { onSave() },
             modifier = Modifier
@@ -299,4 +309,10 @@ fun PlantEntryBody(
 
 
     }
+}
+
+@Composable
+fun AddImageFromCamera() {
+
+
 }

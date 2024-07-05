@@ -29,61 +29,61 @@ import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 
-@Composable
-fun PhotoSelectorView(maxSelectionCount: Int = 1) {
-    var selectedImages by remember {
-        mutableStateOf<List<Uri?>>(emptyList())
-    }
-
-    val buttonText = if (maxSelectionCount > 1) {
-        "Select up to $maxSelectionCount photos"
-    } else {
-        "Select a photo"
-    }
-
-    val singlePhotoPickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickVisualMedia(),
-        onResult = { uri -> selectedImages = listOf(uri) }
-    )
-
-    // I will start this off by saying that I am still learning Android development:
-    // We are tricking the multiple photos picker here which is probably not the best way,
-    // if you know of a better way to implement this feature drop a comment and let me know
-    // how to improve this design
-    val multiplePhotoPickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickMultipleVisualMedia(maxItems = if (maxSelectionCount > 1) {
-            maxSelectionCount
-        } else {
-            2
-        }),
-        onResult = { uris -> selectedImages = uris }
-    )
-
-    fun launchPhotoPicker() {
-        if (maxSelectionCount > 1) {
-            multiplePhotoPickerLauncher.launch(
-                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-            )
-        } else {
-            singlePhotoPickerLauncher.launch(
-                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-            )
-        }
-    }
-
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Button(onClick = {
-            launchPhotoPicker()
-        }) {
-            Text(buttonText)
-        }
-
-        ImageLayoutView(selectedImages = selectedImages)
-    }
-}
+//@Composable
+//fun PhotoSelectorView(maxSelectionCount: Int = 1) {
+//    var selectedImages by remember {
+//        mutableStateOf<List<Uri?>>(emptyList())
+//    }
+//
+//    val buttonText = if (maxSelectionCount > 1) {
+//        "Select up to $maxSelectionCount photos"
+//    } else {
+//        "Select a photo"
+//    }
+//
+//    val singlePhotoPickerLauncher = rememberLauncherForActivityResult(
+//        contract = ActivityResultContracts.PickVisualMedia(),
+//        onResult = { uri -> selectedImages = listOf(uri) }
+//    )
+//
+//    // I will start this off by saying that I am still learning Android development:
+//    // We are tricking the multiple photos picker here which is probably not the best way,
+//    // if you know of a better way to implement this feature drop a comment and let me know
+//    // how to improve this design
+//    val multiplePhotoPickerLauncher = rememberLauncherForActivityResult(
+//        contract = ActivityResultContracts.PickMultipleVisualMedia(maxItems = if (maxSelectionCount > 1) {
+//            maxSelectionCount
+//        } else {
+//            2
+//        }),
+//        onResult = { uris -> selectedImages = uris }
+//    )
+//
+//    fun launchPhotoPicker() {
+//        if (maxSelectionCount > 1) {
+//            multiplePhotoPickerLauncher.launch(
+//                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+//            )
+//        } else {
+//            singlePhotoPickerLauncher.launch(
+//                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+//            )
+//        }
+//    }
+//
+//    Column(
+//        modifier = Modifier.fillMaxSize(),
+//        horizontalAlignment = Alignment.CenterHorizontally
+//    ) {
+//        Button(onClick = {
+//            launchPhotoPicker()
+//        }) {
+//            Text(buttonText)
+//        }
+//
+//        ImageLayoutView(selectedImages = selectedImages)
+//    }
+//}
 
 @Composable
 fun ImageLayoutView(selectedImages: List<Uri?>) {
@@ -100,7 +100,9 @@ fun ImageLayoutView(selectedImages: List<Uri?>) {
 }
 
 @Composable
-fun PhotoPickerDemoScreen() {
+fun PhotoPickerDemoScreen(
+    saveImg: (Uri) -> Unit
+) {
     //The URI of the photo that the user has picked
     var photoUri: Uri? by remember { mutableStateOf(null) }
 
@@ -128,6 +130,7 @@ fun PhotoPickerDemoScreen() {
 
         if (photoUri != null) {
             //Use Coil to display the selected image
+            saveImg(photoUri ?: Uri.EMPTY)
             val painter = rememberAsyncImagePainter(
                 ImageRequest
                     .Builder(LocalContext.current)
@@ -144,6 +147,7 @@ fun PhotoPickerDemoScreen() {
                     .border(6.0.dp, Color.Gray),
                 contentScale = ContentScale.Crop
             )
+
         }
     }
 }

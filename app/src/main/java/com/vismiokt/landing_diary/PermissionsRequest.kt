@@ -31,6 +31,7 @@ import androidx.core.content.ContextCompat.startActivity
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
+import com.vismiokt.landing_diary.ui.CameraPreviewScreen
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalPermissionsApi::class)
@@ -39,7 +40,7 @@ fun RequiredPermission() {
     val state = rememberPermissionState(permission = android.Manifest.permission.CAMERA)
     Scaffold {
         when {
-            state.status.isGranted -> CameraScreen()
+            state.status.isGranted -> CameraPreviewScreen()
             else -> {
                 LaunchedEffect(Unit) {
                     state.launchPermissionRequest()
@@ -79,7 +80,3 @@ fun RequiredPermission() {
     }
 }
 
-@Composable
-fun CameraScreen() {
-    Text(text = "Start")
-}

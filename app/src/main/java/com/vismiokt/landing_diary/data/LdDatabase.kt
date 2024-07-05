@@ -4,8 +4,10 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 
 @Database(entities = [Plant::class], version = 1, exportSchema = false)
+@TypeConverters(UriConverter::class)
 abstract class LdDatabase : RoomDatabase() {
     abstract fun plantDao(): PlantDao
 

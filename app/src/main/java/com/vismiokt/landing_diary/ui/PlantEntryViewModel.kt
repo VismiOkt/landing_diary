@@ -1,5 +1,6 @@
 package com.vismiokt.landing_diary.ui
 
+import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.getValue
@@ -7,10 +8,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.room.TypeConverter
 import com.vismiokt.landing_diary.data.CategoryPlant
 import com.vismiokt.landing_diary.data.Plant
 import com.vismiokt.landing_diary.data.PlantsRepository
 import com.vismiokt.landing_diary.data.ResultPlant
+import com.vismiokt.landing_diary.data.UriConverter
 import com.vismiokt.landing_diary.domain.FormatDateUseCase
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -69,7 +72,8 @@ data class PlantDetails(
     val price: String = "",
     val placeOfPurchase: String = "",
     val result: ResultPlant = ResultPlant.unknown,
-    val note: String = ""
+    val note: String = "",
+    val uriImg: Uri = Uri.EMPTY
 )
 
 fun PlantDetails.toPlant(): Plant = Plant(
@@ -81,7 +85,8 @@ fun PlantDetails.toPlant(): Plant = Plant(
     price = price.toFloatOrNull() ?: 0.0f,
     placeOfPurchase = placeOfPurchase,
     result = result,
-    note = note
+    note = note,
+    uriImg = uriImg
 )
 
 fun Plant.toPlantDetails(): PlantDetails = PlantDetails(
@@ -93,6 +98,8 @@ fun Plant.toPlantDetails(): PlantDetails = PlantDetails(
     price = price.toString(),
     placeOfPurchase = placeOfPurchase,
     result = result,
-    note = note
+    note = note,
+    uriImg = uriImg
+
 )
 

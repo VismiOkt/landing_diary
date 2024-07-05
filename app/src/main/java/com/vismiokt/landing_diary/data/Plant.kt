@@ -1,5 +1,6 @@
 package com.vismiokt.landing_diary.data
 
+import android.net.Uri
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
@@ -14,7 +15,8 @@ data class Plant(
     val price: Float = 0.0f,
     val placeOfPurchase: String = "",
     val result: ResultPlant = ResultPlant.unknown,
-    val note: String = ""
+    val note: String = "",
+    val uriImg: Uri = Uri.EMPTY
 
 ) {
 }

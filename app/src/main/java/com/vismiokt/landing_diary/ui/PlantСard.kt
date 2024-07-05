@@ -1,9 +1,11 @@
 package com.vismiokt.landing_diary.ui
 
+import android.net.Uri
 import android.os.Build
 import android.provider.Settings.Global.getString
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -35,12 +37,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
 import com.vismiokt.landing_diary.R
 import com.vismiokt.landing_diary.domain.FormatDateUseCase
 import java.util.Currency
@@ -141,6 +147,26 @@ fun PlantCard(
                     }
 
                 }
+                //Use Coil to display the selected image
+
+        //        if (uiState.value.plantDetails.uriImg != Uri.EMPTY) {
+                    val painter = rememberAsyncImagePainter(
+                        ImageRequest
+                            .Builder(LocalContext.current)
+                            .data(data = uiState.value.plantDetails.uriImg)
+                            .build()
+                    )
+                    Image(
+                        painter = painter,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .padding(5.dp)
+                            .fillMaxWidth()
+                            .border(6.0.dp, Color.Gray),
+                        contentScale = ContentScale.Crop
+                    )
+       //         }
+
 
 
 
