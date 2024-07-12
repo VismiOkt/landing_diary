@@ -53,7 +53,9 @@ fun LdNavigation(
             PlantEditScreen()
         }
         composable(route = Screen.RequiredPermissionDestination.route) {
-            RequiredPermission()
+            RequiredPermission(
+                navigateBack = { navController.navigateUp() },
+            )
         }
     }
 

@@ -17,6 +17,9 @@
     <string name="entry_plant_note_input">Примечание</string>
     <string name="entry_plant_category_input">Категория</string>
     <string name="entry_plant_time_plant_seeds_input">Дата посадки семян</string>
+    <string name="entry_plant_make_photo">Сделать фото</string>
+    <string name="entry_plant_photograph">Сфотографировать</string>
+    <string name="entry_plant_add_image_from_gallery">Добавить изображение из галереи</string>
     <string name="app_cancel">Отменить</string>
     <string name="app_ok">ОК</string>
     <string name="app_save">Сохранить</string>
@@ -27,5 +30,6 @@
     <string name="result_negative">Отрицательный</string>
     <string name="result_neutral">Нейтральный</string>
     <string name="result_unknown">---</string>
+
 
 </resources>

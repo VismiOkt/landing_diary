@@ -11,7 +11,9 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.layout.Box
+//import androidx.compose.foundation.layout.FlowRowScopeInstance.align
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -21,13 +23,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import com.vismiokt.landing_diary.R
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 @Composable
-fun  CameraPreviewScreen () {
+fun CameraPreviewScreen(
+    navigateBack: () -> Unit,
+) {
     val lensFacing = CameraSelector.LENS_FACING_BACK
     val lifecycleOwner = LocalLifecycleOwner.current
     val context = LocalContext.current
@@ -45,10 +52,23 @@ fun  CameraPreviewScreen () {
         cameraProvider.bindToLifecycle(lifecycleOwner, cameraxSelector, preview, imageCapture)
         preview.setSurfaceProvider(previewView.surfaceProvider)
     }
-    Box(contentAlignment = Alignment.BottomCenter, modifier = Modifier.fillMaxSize()) {
+
+    Box(modifier = Modifier.fillMaxSize()) {
         AndroidView({ previewView }, modifier = Modifier.fillMaxSize())
-        Button(onClick = { captureImage(imageCapture, context) }) {
-            Text(text = "Захватить изображение" )
+        TopBar(title = "", alpha = 0.3f) {
+            navigateBack()
+        }
+        Button(
+            onClick = {
+                captureImage(imageCapture, context, navigateBack)
+            },
+            modifier = Modifier
+                .align(
+                    Alignment.BottomCenter
+                )
+                .padding(30.dp)
+        ) {
+            Text(text = stringResource(R.string.entry_plant_photograph))
         }
     }
 }
@@ -62,7 +82,7 @@ private suspend fun Context.getCameraProvider(): ProcessCameraProvider =
         }
     }
 
-private fun captureImage(imageCapture: ImageCapture, context: Context) {
+private fun captureImage(imageCapture: ImageCapture, context: Context, navigateBack: () -> Unit) {
     val name = "CameraxImage.jpeg"
     val contentValues = ContentValues().apply {
         put(MediaStore.MediaColumns.DISPLAY_NAME, name)
@@ -91,5 +111,6 @@ private fun captureImage(imageCapture: ImageCapture, context: Context) {
             }
 
         })
+ //   navigateBack()
 }
 

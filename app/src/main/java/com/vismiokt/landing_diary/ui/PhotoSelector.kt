@@ -7,7 +7,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
@@ -24,10 +23,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
+import com.vismiokt.landing_diary.R
 
 //@Composable
 //fun PhotoSelectorView(maxSelectionCount: Int = 1) {
@@ -100,7 +101,7 @@ fun ImageLayoutView(selectedImages: List<Uri?>) {
 }
 
 @Composable
-fun PhotoPickerDemoScreen(
+fun PhotoPickerScreen(
     saveImg: (Uri) -> Unit
 ) {
     //The URI of the photo that the user has picked
@@ -114,7 +115,7 @@ fun PhotoPickerDemoScreen(
     }
 
 
-    Column {
+    Column(modifier = Modifier.padding(start = 8.dp, end = 8.dp, bottom = 8.dp).fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         Button(
             onClick = {
                 //On button press, launch the photo picker
@@ -123,9 +124,9 @@ fun PhotoPickerDemoScreen(
                     //Or use .VideoOnly if you only want videos.
                     mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly
                 ))
-            }
+            },
         ) {
-            Text("Select Photo")
+            Text(stringResource(R.string.entry_plant_add_image_from_gallery))
         }
 
         if (photoUri != null) {

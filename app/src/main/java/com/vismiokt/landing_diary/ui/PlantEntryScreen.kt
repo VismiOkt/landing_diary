@@ -2,7 +2,6 @@ package com.vismiokt.landing_diary.ui
 
 import android.annotation.SuppressLint
 import android.os.Build
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -47,8 +46,6 @@ import com.vismiokt.landing_diary.R
 import com.vismiokt.landing_diary.data.CategoryPlant
 import com.vismiokt.landing_diary.data.ResultPlant
 import com.vismiokt.landing_diary.domain.FormatDateUseCase
-import java.time.LocalDate
-import java.time.ZoneId
 import java.util.Currency
 import java.util.Locale
 
@@ -66,6 +63,7 @@ fun PlantEntryScreen(
         topBar = {
             TopBar(
                 stringResource(R.string.entry_plant_title),
+                alpha = 0f,
                 onBackButton = navigateBack
             )
         },
@@ -291,11 +289,11 @@ fun PlantEntryBody(
                 .fillMaxWidth()
                 .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
         )
-        PhotoPickerDemoScreen (
+        PhotoPickerScreen (
             saveImg = { onValueChange(plantDetails.copy(uriImg = it)) }
         )
-        Button(onClick = { requiredPermission() }) {
-            Text(text = "camera")
+        Button(onClick = { requiredPermission() }, modifier = Modifier.padding(start = 8.dp, end = 8.dp, bottom = 8.dp).align(Alignment.CenterHorizontally)) {
+            Text(text = stringResource(R.string.entry_plant_make_photo))
         }
 
         Button(

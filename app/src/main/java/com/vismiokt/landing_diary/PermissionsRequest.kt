@@ -36,11 +36,13 @@ import com.vismiokt.landing_diary.ui.CameraPreviewScreen
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun RequiredPermission() {
+fun RequiredPermission(
+    navigateBack: () -> Unit,
+) {
     val state = rememberPermissionState(permission = android.Manifest.permission.CAMERA)
     Scaffold {
         when {
-            state.status.isGranted -> CameraPreviewScreen()
+            state.status.isGranted -> CameraPreviewScreen(navigateBack)
             else -> {
                 LaunchedEffect(Unit) {
                     state.launchPermissionRequest()

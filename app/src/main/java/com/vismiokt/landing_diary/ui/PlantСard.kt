@@ -63,7 +63,7 @@ fun PlantCard(
 
     Scaffold(
         topBar = {
-            TopBar(uiState.value.plantDetails.nameVariety, onBackButton = navigateBack)
+            TopBar(uiState.value.plantDetails.nameVariety, alpha = 0f, onBackButton = navigateBack)
 
         },
         floatingActionButton = {
