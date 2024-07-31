@@ -35,6 +35,7 @@ class PlantEntryViewModel(private val repository: PlantsRepository) : ViewModel(
         )
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun savePlant() {
         if (validatePlant()) {
             viewModelScope.launch {

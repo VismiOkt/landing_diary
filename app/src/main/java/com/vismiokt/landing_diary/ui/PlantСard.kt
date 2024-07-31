@@ -28,6 +28,7 @@ import androidx.compose.material3.DrawerState
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
@@ -48,7 +49,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.vismiokt.landing_diary.R
+import com.vismiokt.landing_diary.data.ResultPlant
 import com.vismiokt.landing_diary.domain.FormatDateUseCase
+import com.vismiokt.landing_diary.ui.theme.Landing_diaryTheme
+import com.vismiokt.landing_diary.ui.theme.onErrorDark
 import java.util.Currency
 import java.util.Locale
 
@@ -136,20 +140,26 @@ fun PlantCard(
                 Text(text = stringResource(R.string.entry_plant_note_input) + ": ")
                 Text(text = uiState.value.plantDetails.note)
                 Card (
-                    colors = CardDefaults.cardColors(containerColor = Color.Green),
+                    colors = CardDefaults.cardColors(containerColor =
+                    when (uiState.value.plantDetails.result) {
+                        ResultPlant.positive -> MaterialTheme.colorScheme.tertiaryContainer
+                        ResultPlant.negative -> MaterialTheme.colorScheme.error
+                        ResultPlant.neutral -> MaterialTheme.colorScheme.outline
+                        ResultPlant.unknown -> MaterialTheme.colorScheme.primaryContainer
+                    }
+                    ),
                     modifier = Modifier
-                        .padding(8.dp)
                         .fillMaxWidth()
                 ) {
-                    Column (modifier = Modifier.padding(8.dp)) {
+                    Row (modifier = Modifier.padding(8.dp)) {
                         Text(text = stringResource(R.string.entry_plant_result_input) + ": ")
-                 //       Text(text = uiState.value.plantDetails.result)
+                        Text(text = stringResource(id = uiState.value.plantDetails.result.text))
                     }
 
                 }
                 //Use Coil to display the selected image
 
-        //        if (uiState.value.plantDetails.uriImg != Uri.EMPTY) {
+                if (uiState.value.plantDetails.uriImg != Uri.EMPTY) {
                     val painter = rememberAsyncImagePainter(
                         ImageRequest
                             .Builder(LocalContext.current)
@@ -165,7 +175,7 @@ fun PlantCard(
                             .border(6.0.dp, Color.Gray),
                         contentScale = ContentScale.Crop
                     )
-       //         }
+                }
 
 
 

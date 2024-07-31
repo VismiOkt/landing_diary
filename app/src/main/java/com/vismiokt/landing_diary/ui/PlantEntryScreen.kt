@@ -205,7 +205,9 @@ fun PlantEntryBody(
                     dateSet(plantDetails)
                 },
                 label = { Text(stringResource(R.string.entry_plant_time_plant_seeds_input)) },
-                onValueChange = {})
+                onValueChange = {
+                    onValueChange(plantDetails.copy(timePlantSeeds = it.toLongOrNull() ?: 0L))
+                })
             IconButton(
                 onClick = {
                     openDatePickerDialog()
