@@ -111,6 +111,6 @@ private fun captureImage(imageCapture: ImageCapture, context: Context, navigateB
             }
 
         })
- //   navigateBack()
+    navigateBack()
 }
 

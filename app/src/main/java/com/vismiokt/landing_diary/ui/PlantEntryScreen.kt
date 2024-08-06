@@ -1,6 +1,7 @@
 package com.vismiokt.landing_diary.ui
 
 import android.annotation.SuppressLint
+import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
@@ -11,6 +12,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -37,11 +40,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
 import com.vismiokt.landing_diary.R
 import com.vismiokt.landing_diary.data.CategoryPlant
 import com.vismiokt.landing_diary.data.ResultPlant
@@ -291,8 +296,9 @@ fun PlantEntryBody(
                 .fillMaxWidth()
                 .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
         )
+        ImagePreview(plantDetails.uriImgList)
         PhotoPickerScreen (
-            saveImg = { onValueChange(plantDetails.copy(uriImg = it)) }
+            saveImg = { onValueChange(plantDetails.copy(uriImgList = plantDetails.uriImgList.(it))) }
         )
         Button(onClick = { requiredPermission() }, modifier = Modifier.padding(start = 8.dp, end = 8.dp, bottom = 8.dp).align(Alignment.CenterHorizontally)) {
             Text(text = stringResource(R.string.entry_plant_make_photo))
@@ -316,3 +322,17 @@ fun AddImageFromCamera() {
 
 
 }
+
+@Composable
+fun ImagePreview(selectedImages: List<Uri?>) {
+        LazyRow {
+            items(selectedImages) { uri ->
+                AsyncImage(
+                    model = uri,
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxWidth(),
+                    contentScale = ContentScale.Fit
+                )
+            }
+        }
+    }

@@ -86,19 +86,7 @@ import com.vismiokt.landing_diary.R
 //    }
 //}
 
-@Composable
-fun ImageLayoutView(selectedImages: List<Uri?>) {
-    LazyRow {
-        items(selectedImages) { uri ->
-            AsyncImage(
-                model = uri,
-                contentDescription = null,
-                modifier = Modifier.fillMaxWidth(),
-                contentScale = ContentScale.Fit
-            )
-        }
-    }
-}
+
 
 @Composable
 fun PhotoPickerScreen(

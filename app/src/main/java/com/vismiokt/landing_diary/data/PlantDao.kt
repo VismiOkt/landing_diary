@@ -17,4 +17,7 @@ interface PlantDao {
     @Query("SELECT * from plants WHERE id = :id")
     fun getPlant(id: Int): Flow<Plant>
 
+    @Query("SELECT * FROM uri_Image WHERE plantId=:plantId")
+    suspend fun getImageUri(plantId: Int): List<ImageUri>
+
 }

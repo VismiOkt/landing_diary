@@ -8,16 +8,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.room.TypeConverter
 import com.vismiokt.landing_diary.data.CategoryPlant
 import com.vismiokt.landing_diary.data.Plant
 import com.vismiokt.landing_diary.data.PlantsRepository
 import com.vismiokt.landing_diary.data.ResultPlant
-import com.vismiokt.landing_diary.data.UriConverter
-import com.vismiokt.landing_diary.domain.FormatDateUseCase
 import kotlinx.coroutines.launch
-import java.time.LocalDate
-import java.time.ZoneId
 
 class PlantEntryViewModel(private val repository: PlantsRepository) : ViewModel() {
 
@@ -74,7 +69,7 @@ data class PlantDetails(
     val placeOfPurchase: String = "",
     val result: ResultPlant = ResultPlant.unknown,
     val note: String = "",
-    val uriImg: Uri = Uri.EMPTY
+    val uriImgList: List<Uri> = listOf()
 )
 
 fun PlantDetails.toPlant(): Plant = Plant(
@@ -87,7 +82,7 @@ fun PlantDetails.toPlant(): Plant = Plant(
     placeOfPurchase = placeOfPurchase,
     result = result,
     note = note,
-    uriImg = uriImg
+    uriImgList = uriImgList
 )
 
 fun Plant.toPlantDetails(): PlantDetails = PlantDetails(
@@ -100,7 +95,7 @@ fun Plant.toPlantDetails(): PlantDetails = PlantDetails(
     placeOfPurchase = placeOfPurchase,
     result = result,
     note = note,
-    uriImg = uriImg
+    uriImgList = uriImgList
 
 )
 
