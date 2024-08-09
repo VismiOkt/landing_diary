@@ -16,6 +16,6 @@ data class Plant(
     val placeOfPurchase: String = "",
     val result: ResultPlant = ResultPlant.unknown,
     val note: String = "",
-    val uriImgList: List<Uri> = listOf()
+//    val uriImgList: List<Uri> = listOf()
 ) {
 }

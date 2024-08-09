@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -34,6 +36,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,10 +51,12 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import coil.compose.rememberAsyncImagePainter
 import com.vismiokt.landing_diary.R
 import com.vismiokt.landing_diary.data.CategoryPlant
 import com.vismiokt.landing_diary.data.ResultPlant
 import com.vismiokt.landing_diary.domain.FormatDateUseCase
+import kotlinx.coroutines.flow.Flow
 import java.util.Currency
 import java.util.Locale
 
@@ -86,6 +92,8 @@ fun PlantEntryScreen(
             dateNow = FormatDateUseCase().getDateNow(),
             dateSet = { FormatDateUseCase().getDateSet(it) },
             requiredPermission = navigateCamera,
+            saveImgUri = viewModel::addImageUri,
+            imageUriList = viewModel.uriImgList,
             modifier = Modifier
                 .verticalScroll(rememberScrollState())
                 .padding(
@@ -108,12 +116,15 @@ fun PlantEntryBody(
     openDatePickerDialog: () -> Unit,
     onSave: () -> Unit,
     dateNow: String,
+    imageUriList: Flow<List<Uri>>,
     dateSet: (PlantDetails) -> String,
     requiredPermission: () -> Unit,
+    saveImgUri: (Uri) -> Unit,
     modifier: Modifier
 ) {
 
     val plantDetails = plantUiState.plantDetails
+
     if (plantUiState.openDialogCalendar) {
         val datePickerState = rememberDatePickerState()
         DatePickerDialog(
@@ -296,11 +307,15 @@ fun PlantEntryBody(
                 .fillMaxWidth()
                 .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
         )
-        ImagePreview(plantDetails.uriImgList)
+        ImagePreview(imageUriList.collectAsState(initial = listOf()).value)
         PhotoPickerScreen (
-            saveImg = { onValueChange(plantDetails.copy(uriImgList = plantDetails.uriImgList.(it))) }
+            saveImg = {
+                saveImgUri(it)
+            }
         )
-        Button(onClick = { requiredPermission() }, modifier = Modifier.padding(start = 8.dp, end = 8.dp, bottom = 8.dp).align(Alignment.CenterHorizontally)) {
+        Button(onClick = { requiredPermission() }, modifier = Modifier
+            .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
+            .align(Alignment.CenterHorizontally)) {
             Text(text = stringResource(R.string.entry_plant_make_photo))
         }
 
@@ -317,22 +332,22 @@ fun PlantEntryBody(
     }
 }
 
-@Composable
-fun AddImageFromCamera() {
-
-
-}
 
 @Composable
-fun ImagePreview(selectedImages: List<Uri?>) {
-        LazyRow {
-            items(selectedImages) { uri ->
-                AsyncImage(
-                    model = uri,
+fun ImagePreview(selectedImages: List<Uri>) {
+    LazyRow {
+            items (selectedImages) { uri ->
+                Image(
+                    painter = rememberAsyncImagePainter(uri),
                     contentDescription = null,
-                    modifier = Modifier.fillMaxWidth(),
-                    contentScale = ContentScale.Fit
+                    modifier = Modifier.size(300.dp)
                 )
+//                AsyncImage(
+//                    model = uri,
+//                    contentDescription = null,
+//                    modifier = Modifier.fillMaxWidth(),
+//                    contentScale = ContentScale.Fit
+//                )
             }
         }
     }

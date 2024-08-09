@@ -1,10 +1,12 @@
 package com.vismiokt.landing_diary.ui
 
+import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.vismiokt.landing_diary.data.ImageUri
 import com.vismiokt.landing_diary.data.PlantsRepository
 import com.vismiokt.landing_diary.domain.FormatDateUseCase
 import com.vismiokt.landing_diary.navigation.Screen
@@ -24,16 +26,20 @@ class PlantCardViewModel(
         repository.getPlantStream(plantId)
             .filterNotNull()
             .map {
-                PlantCardUiState(plantDetails = it.toPlantDetails())
+                PlantCardUiState(plantDetails = it.toPlantDetails(), imageUriList = repository.getImageUri(it.id))
             }.stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(5_000L),
                 initialValue = PlantCardUiState()
             )
+    fun imageUriListToUriList(imageUriList: List<ImageUri>): List<Uri> {
+        return imageUriList.map { it.uriImg }
+    }
 
 
 }
 
 data class PlantCardUiState (
-    val plantDetails: PlantDetails = PlantDetails()
+    val plantDetails: PlantDetails = PlantDetails(),
+    val imageUriList: List<ImageUri> = listOf()
 )

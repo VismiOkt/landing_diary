@@ -24,6 +24,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -39,6 +40,7 @@ import coil.request.ImageRequest
 import com.vismiokt.landing_diary.R
 import com.vismiokt.landing_diary.data.ResultPlant
 import com.vismiokt.landing_diary.domain.FormatDateUseCase
+import kotlinx.coroutines.flow.asFlow
 import java.util.Currency
 import java.util.Locale
 
@@ -50,6 +52,7 @@ fun PlantCard(
     navigateBack: () -> Unit
 ) {
     val uiState = viewModel.uiState.collectAsState()
+   // val imgList = viewModel
 
     Scaffold(
         topBar = {
@@ -143,16 +146,18 @@ fun PlantCard(
                     }
 
                 }
+                val img = viewModel.imageUriListToUriList(uiState.value.imageUriList)
+                ImagePreview(selectedImages = img)
                 //Use Coil to display the selected image
 
-                if (uiState.value.plantDetails.uriImgList != Uri.EMPTY) {
-                    val painter = rememberAsyncImagePainter(
-                        ImageRequest
-                            .Builder(LocalContext.current)
-                            .data(data = uiState.value.plantDetails.uriImgList)
-                            .build()
-                    )
-                    AsyncImage(model = uiState.value.plantDetails.uriImgList, contentDescription = null,)
+//                if (uiState.value.imageUriList != Uri.EMPTY) {
+//                    val painter = rememberAsyncImagePainter(
+//                        ImageRequest
+//                            .Builder(LocalContext.current)
+//                            .data(data = uiState.value.plantDetails.uriImgList)
+//                            .build()
+//                    )
+//                    AsyncImage(model = uiState.value.plantDetails.uriImgList, contentDescription = null,)
 //                    Image(
 //                        painter = painter,
 //                        contentDescription = null,
@@ -162,8 +167,8 @@ fun PlantCard(
 //                            .border(6.0.dp, Color.Gray),
 //                        contentScale = ContentScale.Crop
 //                    )
-                }
-
+//                }
+//
 
 
 

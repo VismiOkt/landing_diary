@@ -6,7 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 
-@Database(entities = [Plant::class], version = 1, exportSchema = false)
+@Database(entities = [Plant::class, ImageUri::class], version = 2, exportSchema = false)
 @TypeConverters(UriConverter::class)
 abstract class LdDatabase : RoomDatabase() {
     abstract fun plantDao(): PlantDao

@@ -1,5 +1,6 @@
 package com.vismiokt.landing_diary.data
 
+import android.net.Uri
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -9,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface PlantDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertPlant(plant: Plant)
+    suspend fun insertPlant(plant: Plant): Long
 
     @Query("SELECT * from plants ORDER BY nameVariety ASC")
     fun getAllPlants(): Flow<List<Plant>>
@@ -19,5 +20,8 @@ interface PlantDao {
 
     @Query("SELECT * FROM uri_Image WHERE plantId=:plantId")
     suspend fun getImageUri(plantId: Int): List<ImageUri>
+
+    @Insert
+    suspend fun addImageUriList(imageUriList: List<ImageUri>)
 
 }
