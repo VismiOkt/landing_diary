@@ -92,13 +92,9 @@ import com.vismiokt.landing_diary.R
 fun PhotoPickerScreen(
     saveImg: (Uri) -> Unit
 ) {
-    //The URI of the photo that the user has picked
     var photoUri: Uri? by remember { mutableStateOf(null) }
 
-    //The launcher we will use for the PickVisualMedia contract.
-    //When .launch()ed, this will display the photo picker.
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
-        //When the user has selected a photo, its URI is returned here
         photoUri = uri
     }
 
@@ -106,10 +102,7 @@ fun PhotoPickerScreen(
     Column(modifier = Modifier.padding(start = 8.dp, end = 8.dp, bottom = 8.dp).fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         Button(
             onClick = {
-                //On button press, launch the photo picker
                 launcher.launch(PickVisualMediaRequest(
-                    //Here we request only photos. Change this to .ImageAndVideo if you want videos too.
-                    //Or use .VideoOnly if you only want videos.
                     mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly
                 ))
             },
@@ -118,24 +111,23 @@ fun PhotoPickerScreen(
         }
 
         if (photoUri != null) {
-            //Use Coil to display the selected image
             saveImg(photoUri ?: Uri.EMPTY)
-            val painter = rememberAsyncImagePainter(
-                ImageRequest
-                    .Builder(LocalContext.current)
-                    .data(data = photoUri)
-                    .build()
-            )
-
-            Image(
-                painter = painter,
-                contentDescription = null,
-                modifier = Modifier
-                    .padding(5.dp)
-                    .fillMaxWidth()
-                    .border(6.0.dp, Color.Gray),
-                contentScale = ContentScale.Crop
-            )
+//            val painter = rememberAsyncImagePainter(
+//                ImageRequest
+//                    .Builder(LocalContext.current)
+//                    .data(data = photoUri)
+//                    .build()
+//            )
+//
+//            Image(
+//                painter = painter,
+//                contentDescription = null,
+//                modifier = Modifier
+//                    .padding(5.dp)
+//                    .fillMaxWidth()
+//                    .border(6.0.dp, Color.Gray),
+//                contentScale = ContentScale.Crop
+//            )
 
         }
     }

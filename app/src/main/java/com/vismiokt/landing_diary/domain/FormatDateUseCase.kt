@@ -5,6 +5,7 @@ import androidx.annotation.RequiresApi
 import com.vismiokt.landing_diary.ui.PlantDetails
 import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -49,13 +50,29 @@ class FormatDateUseCase {
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun getDateNow(): String {
-        return FormatDateUseCase().dateToString(LocalDate.now(ZoneId.systemDefault()))
+    fun getDateNowString(): String {
+        return FormatDateUseCase().dateToString(dateNow())
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun getDateNowMillis(): Long {
+        return FormatDateUseCase().convertLocalDateToMillis(dateNow())
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun getDateSet(plantDetails: PlantDetails): String {
         return FormatDateUseCase().dateToString(FormatDateUseCase().convertMillisToLocalDate(plantDetails.timePlantSeeds))
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun dateNow(): LocalDate {
+        return LocalDate.now(ZoneId.systemDefault())
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun getDateNowForName(): String {
+        val dateFormatter = DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm_ss", Locale.getDefault())
+        return dateFormatter.format(LocalDateTime.now(ZoneId.systemDefault()))
     }
 
 //    @RequiresApi(Build.VERSION_CODES.O)

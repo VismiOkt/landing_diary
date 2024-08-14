@@ -30,6 +30,9 @@
     <string name="result_negative">Отрицательный</string>
     <string name="result_neutral">Нейтральный</string>
     <string name="result_unknown">---</string>
+    <string name="required_permission_camera_permission_required">Требуется разрешение камеры.</string>
+    <string name="required_permission_take_pictures">Это необходимо для того, чтобы приложение могло делать снимки.</string>
+    <string name="required_permission_go_to_settings">Перейти в настройки</string>
 
 
 </resources>

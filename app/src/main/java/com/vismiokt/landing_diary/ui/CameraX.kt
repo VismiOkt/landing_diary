@@ -2,8 +2,10 @@ package com.vismiokt.landing_diary.ui
 
 import android.content.ContentValues
 import android.content.Context
+import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
+import androidx.annotation.RequiresApi
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
@@ -27,14 +29,20 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.vismiokt.landing_diary.R
+import com.vismiokt.landing_diary.domain.FormatDateUseCase
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun CameraPreviewScreen(
     navigateBack: () -> Unit,
+ //   saveImg: (Uri) -> Unit
+
 ) {
+    val viewModel: PlantEntryViewModel = viewModel(factory = AppViewModelProvider.Factory)
     val lensFacing = CameraSelector.LENS_FACING_BACK
     val lifecycleOwner = LocalLifecycleOwner.current
     val context = LocalContext.current
@@ -60,7 +68,12 @@ fun CameraPreviewScreen(
         }
         Button(
             onClick = {
-                captureImage(imageCapture, context, navigateBack)
+                captureImage(
+                    imageCapture,
+                    context,
+                    navigateBack,
+                    saveImg = viewModel::addImageUri
+                )
             },
             modifier = Modifier
                 .align(
@@ -82,13 +95,14 @@ private suspend fun Context.getCameraProvider(): ProcessCameraProvider =
         }
     }
 
-private fun captureImage(imageCapture: ImageCapture, context: Context, navigateBack: () -> Unit) {
-    val name = "CameraxImage.jpeg"
+@RequiresApi(Build.VERSION_CODES.O)
+private fun captureImage(imageCapture: ImageCapture, context: Context, navigateBack: () -> Unit, saveImg: (Uri) -> Unit) {
+    val name = FormatDateUseCase().getDateNowForName()
     val contentValues = ContentValues().apply {
         put(MediaStore.MediaColumns.DISPLAY_NAME, name)
         put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
-            put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/CameraX-Image")
+            put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/Landing_diary-Image")
         }
     }
     val outputOptions = ImageCapture.OutputFileOptions
@@ -104,6 +118,8 @@ private fun captureImage(imageCapture: ImageCapture, context: Context, navigateB
         object : ImageCapture.OnImageSavedCallback {
             override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
                 println("Successs")
+                saveImg(outputFileResults.savedUri ?: Uri.EMPTY)
+                navigateBack()
             }
 
             override fun onError(exception: ImageCaptureException) {
@@ -111,6 +127,6 @@ private fun captureImage(imageCapture: ImageCapture, context: Context, navigateB
             }
 
         })
-    navigateBack()
+
 }
 

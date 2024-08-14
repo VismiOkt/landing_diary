@@ -13,12 +13,9 @@ import com.vismiokt.landing_diary.data.ImageUri
 import com.vismiokt.landing_diary.data.Plant
 import com.vismiokt.landing_diary.data.PlantsRepository
 import com.vismiokt.landing_diary.data.ResultPlant
+import com.vismiokt.landing_diary.domain.FormatDateUseCase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class PlantEntryViewModel(private val repository: PlantsRepository) : ViewModel() {
@@ -38,9 +35,10 @@ class PlantEntryViewModel(private val repository: PlantsRepository) : ViewModel(
         plantUiState = PlantEntryUiState(
             plantDetails = plantDetails,
             isEntryValid = validatePlant(plantDetails),
-   //         uriImgList = _uriImgList.value.map { ImageUri(id = 0, plantId = plantDetails.id, uriImg = it) }
+            //         uriImgList = _uriImgList.value.map { ImageUri(id = 0, plantId = plantDetails.id, uriImg = it) }
         )
     }
+
     fun addImageUri(imgUri: Uri) {
         val uIL = _uriImgList.value.toMutableList()
         uIL.add(imgUri)
@@ -53,9 +51,15 @@ class PlantEntryViewModel(private val repository: PlantsRepository) : ViewModel(
         if (validatePlant()) {
             viewModelScope.launch {
                 id = repository.insertPlant(plantUiState.plantDetails.toPlant())
-                repository.addImageUriList(_uriImgList.value.map { ImageUri(id = 0, plantId = id.toInt(), uriImg = it) })
+                repository.addImageUriList(_uriImgList.value.map {
+                    ImageUri(
+                        id = 0,
+                        plantId = id.toInt(),
+                        uriImg = it
+                    )
+                })
             }
-    //        if (_uriImgList.value != )
+            //        if (_uriImgList.value != )
 //            viewModelScope.launch {
 //                repository.addImageUriList(_uriImgList.value.map { ImageUri(id = 0, plantId = id.toInt(), uriImg = it) })
 //            }
@@ -72,6 +76,16 @@ class PlantEntryViewModel(private val repository: PlantsRepository) : ViewModel(
         plantUiState = plantUiState.copy(openDialogCalendar = true)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun setDate(plantDetails: PlantDetails): String {
+        return if (plantUiState.plantDetails.timePlantSeeds == 0L) {
+            updateUiState(plantDetails.copy(timePlantSeeds = FormatDateUseCase().getDateNowMillis()))
+                FormatDateUseCase().getDateNowString()
+        } else {
+            FormatDateUseCase().getDateSet(plantUiState.plantDetails)
+        }
+
+    }
 
 
 }
@@ -80,7 +94,8 @@ data class PlantEntryUiState(
     val plantDetails: PlantDetails = PlantDetails(),
     val isEntryValid: Boolean = false,
     val openDialogCalendar: Boolean = false,
- //   val uriImgList: List<ImageUri> = listOf()
+    val openCameraLd: Boolean = false
+    //   val uriImgList: List<ImageUri> = listOf()
 )
 
 data class PlantDetails(
@@ -93,7 +108,7 @@ data class PlantDetails(
     val placeOfPurchase: String = "",
     val result: ResultPlant = ResultPlant.unknown,
     val note: String = "",
- //   val uriImgList: List<Uri> = listOf()
+    //   val uriImgList: List<Uri> = listOf()
 )
 
 fun PlantDetails.toPlant(): Plant = Plant(
@@ -106,7 +121,7 @@ fun PlantDetails.toPlant(): Plant = Plant(
     placeOfPurchase = placeOfPurchase,
     result = result,
     note = note,
- //   uriImgList = uriImgList
+    //   uriImgList = uriImgList
 )
 
 fun Plant.toPlantDetails(): PlantDetails = PlantDetails(

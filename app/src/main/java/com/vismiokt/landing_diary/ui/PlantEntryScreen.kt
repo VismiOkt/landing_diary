@@ -89,8 +89,7 @@ fun PlantEntryScreen(
                 viewModel.savePlant()
                 navigateBack()
             },
-            dateNow = FormatDateUseCase().getDateNow(),
-            dateSet = { FormatDateUseCase().getDateSet(it) },
+            setDate = viewModel::setDate,
             requiredPermission = navigateCamera,
             saveImgUri = viewModel::addImageUri,
             imageUriList = viewModel.uriImgList,
@@ -115,9 +114,8 @@ fun PlantEntryBody(
     closeDatePickerDialog: () -> Unit,
     openDatePickerDialog: () -> Unit,
     onSave: () -> Unit,
-    dateNow: String,
+    setDate: (PlantDetails) -> String,
     imageUriList: Flow<List<Uri>>,
-    dateSet: (PlantDetails) -> String,
     requiredPermission: () -> Unit,
     saveImgUri: (Uri) -> Unit,
     modifier: Modifier
@@ -134,12 +132,12 @@ fun PlantEntryBody(
             confirmButton = {
                 TextButton(
                     onClick = {
-                        closeDatePickerDialog()
                         onValueChange(
                             plantDetails.copy(
                                 timePlantSeeds = datePickerState.selectedDateMillis ?: 0
                             )
                         )
+                        closeDatePickerDialog()
                     },
                 ) {
                     Text(stringResource(R.string.app_ok))
@@ -214,12 +212,7 @@ fun PlantEntryBody(
         ) {
             OutlinedTextField(
                 readOnly = true,
-                value =
-                if (plantDetails.timePlantSeeds == 0L) {
-                    dateNow
-                } else {
-                    dateSet(plantDetails)
-                },
+                value = setDate(plantDetails),
                 label = { Text(stringResource(R.string.entry_plant_time_plant_seeds_input)) },
                 onValueChange = {
                     onValueChange(plantDetails.copy(timePlantSeeds = it.toLongOrNull() ?: 0L))
@@ -313,9 +306,12 @@ fun PlantEntryBody(
                 saveImgUri(it)
             }
         )
-        Button(onClick = { requiredPermission() }, modifier = Modifier
-            .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
-            .align(Alignment.CenterHorizontally)) {
+        Button(onClick = {
+            requiredPermission()
+                         }, 
+            modifier = Modifier
+                .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
+                .align(Alignment.CenterHorizontally)) {
             Text(text = stringResource(R.string.entry_plant_make_photo))
         }
 
