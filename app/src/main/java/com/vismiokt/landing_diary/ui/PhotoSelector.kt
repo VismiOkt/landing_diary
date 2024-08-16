@@ -1,5 +1,6 @@
 package com.vismiokt.landing_diary.ui
 
+import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -93,11 +94,15 @@ fun PhotoPickerScreen(
     saveImg: (Uri) -> Unit
 ) {
     var photoUri: Uri? by remember { mutableStateOf(null) }
+    val context = LocalContext.current
 
-    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+    val launcher = rememberLauncherForActivityResult(contract = ActivityResultContracts.PickVisualMedia(), onResult =  { uri ->
         photoUri = uri
+        val flags = Intent.FLAG_GRANT_READ_URI_PERMISSION //or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+        val resolver = context.contentResolver
+        resolver.takePersistableUriPermission(uri ?: Uri.EMPTY, flags)
     }
-
+    )
 
     Column(modifier = Modifier.padding(start = 8.dp, end = 8.dp, bottom = 8.dp).fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         Button(
@@ -109,6 +114,7 @@ fun PhotoPickerScreen(
         ) {
             Text(stringResource(R.string.entry_plant_add_image_from_gallery))
         }
+
 
         if (photoUri != null) {
             saveImg(photoUri ?: Uri.EMPTY)

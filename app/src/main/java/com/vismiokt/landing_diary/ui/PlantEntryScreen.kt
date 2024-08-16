@@ -3,8 +3,12 @@ package com.vismiokt.landing_diary.ui
 import android.annotation.SuppressLint
 import android.net.Uri
 import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -44,7 +48,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -52,6 +58,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
 import com.vismiokt.landing_diary.R
 import com.vismiokt.landing_diary.data.CategoryPlant
 import com.vismiokt.landing_diary.data.ResultPlant
@@ -306,14 +313,17 @@ fun PlantEntryBody(
                 saveImgUri(it)
             }
         )
+
         Button(onClick = {
             requiredPermission()
-                         }, 
+
+                         },
             modifier = Modifier
                 .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
                 .align(Alignment.CenterHorizontally)) {
             Text(text = stringResource(R.string.entry_plant_make_photo))
         }
+
 
         Button(
             onClick = { onSave() },
@@ -333,11 +343,22 @@ fun PlantEntryBody(
 fun ImagePreview(selectedImages: List<Uri>) {
     LazyRow {
             items (selectedImages) { uri ->
-                Image(
-                    painter = rememberAsyncImagePainter(uri),
-                    contentDescription = null,
-                    modifier = Modifier.size(300.dp)
-                )
+                    AsyncImage(
+                        modifier = Modifier
+                            .size(250.dp),
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(uri)
+                            .crossfade(enable = true)
+                            .build(),
+                        contentDescription = "Avatar Image",
+                        contentScale = ContentScale.Crop,
+                    )
+
+//                Image(
+//                    painter = rememberAsyncImagePainter(uri),
+//                    contentDescription = null,
+//                    modifier = Modifier.size(300.dp)
+//                )
 //                AsyncImage(
 //                    model = uri,
 //                    contentDescription = null,

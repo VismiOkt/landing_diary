@@ -1,5 +1,6 @@
 package com.vismiokt.landing_diary.ui
 
+
 import android.content.ContentValues
 import android.content.Context
 import android.net.Uri
@@ -13,7 +14,6 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.layout.Box
-//import androidx.compose.foundation.layout.FlowRowScopeInstance.align
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
@@ -34,6 +34,7 @@ import com.vismiokt.landing_diary.R
 import com.vismiokt.landing_diary.domain.FormatDateUseCase
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
+
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -120,6 +121,7 @@ private fun captureImage(imageCapture: ImageCapture, context: Context, navigateB
                 println("Successs")
                 saveImg(outputFileResults.savedUri ?: Uri.EMPTY)
                 navigateBack()
+
             }
 
             override fun onError(exception: ImageCaptureException) {
