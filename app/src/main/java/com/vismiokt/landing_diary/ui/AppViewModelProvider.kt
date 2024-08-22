@@ -10,29 +10,27 @@ import com.vismiokt.landing_diary.LdApplication
 
 object AppViewModelProvider {
     val Factory = viewModelFactory {
-        // Initializer for ItemEditViewModel
         initializer {
             HomeViewModel(ldApplication().container.plantsRepository)
         }
-        // Initializer for ItemEntryViewModel
         initializer {
             PlantEntryViewModel(ldApplication().container.plantsRepository)
         }
 
-        // Initializer for PlantCardViewModel
         initializer {
             PlantCardViewModel(
                 ldApplication().container.plantsRepository,
                 this.createSavedStateHandle()
             )
         }
-//
-//        // Initializer for HomeViewModel
-//        initializer {
-//            HomeViewModel()
-//        }
-//    }
+        initializer {
+            PlantEditViewModel(
+                ldApplication().container.plantsRepository,
+                this.createSavedStateHandle()
+            )
+        }
     }
+
 }
 
 /**

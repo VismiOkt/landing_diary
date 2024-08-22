@@ -9,6 +9,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -25,6 +26,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -32,10 +34,12 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
@@ -100,6 +104,7 @@ fun PlantEntryScreen(
             requiredPermission = navigateCamera,
             saveImgUri = viewModel::addImageUri,
             imageUriList = viewModel.uriImgList,
+            onDeleteUri = { viewModel.deleteImageUri(it) },
             modifier = Modifier
                 .verticalScroll(rememberScrollState())
                 .padding(
@@ -125,6 +130,7 @@ fun PlantEntryBody(
     imageUriList: Flow<List<Uri>>,
     requiredPermission: () -> Unit,
     saveImgUri: (Uri) -> Unit,
+    onDeleteUri: (Uri) -> Unit,
     modifier: Modifier
 ) {
 
@@ -273,7 +279,7 @@ fun PlantEntryBody(
             ExposedDropdownMenu(
                 expanded = expandedResult,
                 onDismissRequest = { expandedResult = false },
-            //    modifier = Modifier.padding(20.dp)
+                //    modifier = Modifier.padding(20.dp)
             ) {
                 ResultPlant.entries.forEach { option ->
                     DropdownMenuItem(
@@ -307,20 +313,25 @@ fun PlantEntryBody(
                 .fillMaxWidth()
                 .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
         )
-        ImagePreview(imageUriList.collectAsState(initial = listOf()).value)
-        PhotoPickerScreen (
+        ImagePreviewEdit(
+            imageUriList.collectAsState(initial = listOf()).value,
+            onDelete = { onDeleteUri(it) }
+        )
+        PhotoPickerScreen(
             saveImg = {
                 saveImgUri(it)
             }
         )
 
-        Button(onClick = {
-            requiredPermission()
+        Button(
+            onClick = {
+                requiredPermission()
 
-                         },
+            },
             modifier = Modifier
                 .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
-                .align(Alignment.CenterHorizontally)) {
+                .align(Alignment.CenterHorizontally)
+        ) {
             Text(text = stringResource(R.string.entry_plant_make_photo))
         }
 
@@ -337,34 +348,3 @@ fun PlantEntryBody(
 
     }
 }
-
-
-@Composable
-fun ImagePreview(selectedImages: List<Uri>) {
-    LazyRow {
-            items (selectedImages) { uri ->
-                    AsyncImage(
-                        modifier = Modifier
-                            .size(250.dp),
-                        model = ImageRequest.Builder(LocalContext.current)
-                            .data(uri)
-                            .crossfade(enable = true)
-                            .build(),
-                        contentDescription = "Avatar Image",
-                        contentScale = ContentScale.Crop,
-                    )
-
-//                Image(
-//                    painter = rememberAsyncImagePainter(uri),
-//                    contentDescription = null,
-//                    modifier = Modifier.size(300.dp)
-//                )
-//                AsyncImage(
-//                    model = uri,
-//                    contentDescription = null,
-//                    modifier = Modifier.fillMaxWidth(),
-//                    contentScale = ContentScale.Fit
-//                )
-            }
-        }
-    }

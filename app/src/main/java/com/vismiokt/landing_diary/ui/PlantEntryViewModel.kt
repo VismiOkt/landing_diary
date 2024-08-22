@@ -45,6 +45,12 @@ class PlantEntryViewModel(private val repository: PlantsRepository) : ViewModel(
         _uriImgList.value = uIL
     }
 
+    fun deleteImageUri(imgUri: Uri) {
+        val uIL = _uriImgList.value.toMutableList()
+        uIL.remove(imgUri)
+        _uriImgList.value = uIL
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     fun savePlant() {
         var id = 0L

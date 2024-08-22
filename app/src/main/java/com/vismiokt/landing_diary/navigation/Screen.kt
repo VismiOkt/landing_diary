@@ -12,7 +12,10 @@ sealed class Screen (
 
     data object PlantEntryDestination : Screen(ROUTE_PLANT_ENTRY)
 
-    data object PlantEditDestination : Screen(ROUTE_PLANT_EDIT)
+    data object PlantEditDestination : Screen(ROUTE_PLANT_EDIT) {
+        const val plantId = "plantId"
+        val routeFull = "$ROUTE_PLANT_EDIT/{${plantId}}"
+    }
 
     data object RequiredPermissionDestination : Screen(ROUT_REQUIRED_PERMISSION)
 
