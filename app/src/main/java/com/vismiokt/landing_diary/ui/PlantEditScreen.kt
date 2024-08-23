@@ -3,6 +3,7 @@ package com.vismiokt.landing_diary.ui
 import android.annotation.SuppressLint
 import android.net.Uri
 import android.os.Build
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -50,6 +51,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -74,12 +76,16 @@ fun PlantEditScreen(
 ) {
     val viewModel: PlantEditViewModel = viewModel(factory = AppViewModelProvider.Factory)
     val uiState = viewModel.plantUiState
+    val context = LocalContext.current
+    val toastText = stringResource(R.string.entry_plant_required_field)
     Scaffold(
         topBar = {
             TopBar(
                 uiState.plantDetails.nameVariety,
                 alpha = 0f,
-                onBackButton = navigateBack
+                onBackButton = navigateBack,
+           //     actionIcon = R.drawable.baseline_tune_24,
+           //     onActionIcon = {}
             )
         },
         modifier = Modifier.fillMaxSize()
@@ -93,6 +99,8 @@ fun PlantEditScreen(
                 viewModel.savePlant(uiState.plantDetails)
                 if (viewModel.plantUiState.isEntryValid) {
                     navigateToPlantDetails(uiState.plantDetails.id)
+                } else {
+                    Toast.makeText(context, toastText, Toast.LENGTH_SHORT).show()
                 }
          //       navigateBack()
             },
@@ -172,6 +180,7 @@ fun PlantEditBody(
             value = plantDetails.nameVariety,
             onValueChange = { onValueChange(plantDetails.copy(nameVariety = it)) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+            isError = !plantUiState.isEntryValid,
             label = { Text(stringResource(R.string.entry_plant_name_input)) },
             modifier = Modifier
                 .fillMaxWidth()

@@ -22,4 +22,6 @@ interface PlantsRepository {
 
     suspend fun deleteImageUri(imageUri: Uri, plantId: Int)
 
+    fun getPlantsByCategory(categoryPlant: CategoryPlant): Flow<List<Plant>>
+
 }

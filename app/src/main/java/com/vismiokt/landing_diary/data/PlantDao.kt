@@ -38,4 +38,7 @@ interface PlantDao {
     @Query("DELETE FROM uri_Image WHERE plantId=:plantId")
     suspend fun deleteImageUriList(plantId: Int)
 
+    @Query("SELECT * from plants WHERE category=:categoryPlant ORDER BY nameVariety ASC")
+    fun getPlantsByCategory(categoryPlant: CategoryPlant): Flow<List<Plant>>
+
 }
