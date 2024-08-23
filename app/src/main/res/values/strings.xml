@@ -19,6 +19,7 @@
     <string name="entry_plant_time_plant_seeds_input">Дата посадки семян</string>
     <string name="entry_plant_make_photo">Сделать фото</string>
     <string name="entry_plant_photograph">Сфотографировать</string>
+    <string name="entry_plant_required_field">Поле \"Название\" является обязательным для заполнения</string>
     <string name="entry_plant_add_image_from_gallery">Добавить изображение из галереи</string>
     <string name="app_cancel">Отменить</string>
     <string name="app_ok">ОК</string>

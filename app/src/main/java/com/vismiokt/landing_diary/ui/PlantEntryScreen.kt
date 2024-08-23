@@ -3,10 +3,12 @@ package com.vismiokt.landing_diary.ui
 import android.annotation.SuppressLint
 import android.net.Uri
 import android.os.Build
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
+import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -49,6 +51,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -80,6 +83,8 @@ fun PlantEntryScreen(
 
 ) {
     val viewModel: PlantEntryViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    val context = LocalContext.current
+    val toastText = stringResource(R.string.entry_plant_required_field)
 
     Scaffold(
         topBar = {
@@ -98,7 +103,11 @@ fun PlantEntryScreen(
             openDatePickerDialog = viewModel::openDatePickerDialog,
             onSave = {
                 viewModel.savePlant()
-                navigateBack()
+                if (viewModel.plantUiState.isEntryValid) {
+                    navigateBack()
+                } else {
+                    Toast.makeText(context, toastText, Toast.LENGTH_SHORT).show()
+                }
             },
             setDate = viewModel::setDate,
             requiredPermission = navigateCamera,
@@ -175,6 +184,7 @@ fun PlantEntryBody(
             onValueChange = { onValueChange(plantDetails.copy(nameVariety = it)) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
             label = { Text(stringResource(R.string.entry_plant_name_input)) },
+            isError = !plantUiState.isEntryValid,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 8.dp, end = 8.dp, bottom = 8.dp),

@@ -28,7 +28,8 @@ class PlantEntryViewModel(private val repository: PlantsRepository) : ViewModel(
 
 
     private fun validatePlant(plantDetails: PlantDetails = plantUiState.plantDetails): Boolean {
-        return plantDetails.nameVariety.isNotBlank()
+        return plantDetails.nameVariety != ""
+
     }
 
     fun updateUiState(plantDetails: PlantDetails) {
@@ -54,7 +55,7 @@ class PlantEntryViewModel(private val repository: PlantsRepository) : ViewModel(
     @RequiresApi(Build.VERSION_CODES.O)
     fun savePlant() {
         var id = 0L
-        if (validatePlant()) {
+        if (plantUiState.isEntryValid) {
             viewModelScope.launch {
                 id = repository.insertPlant(plantUiState.plantDetails.toPlant())
                 repository.addImageUriList(_uriImgList.value.map {

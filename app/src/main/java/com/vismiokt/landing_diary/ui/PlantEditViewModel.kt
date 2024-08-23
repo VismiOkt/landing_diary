@@ -160,7 +160,7 @@ class PlantEditViewModel (private val repository: PlantsRepository,
 
 data class PlantEditUiState(
     val plantDetails: PlantDetails = PlantDetails(),
-    val isEntryValid: Boolean = false,
+    val isEntryValid: Boolean = true,
     val openDialogCalendar: Boolean = false,
     val openCameraLd: Boolean = false,
 //    val uriImgList: List<ImageUri> = listOf()
