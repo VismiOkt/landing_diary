@@ -23,6 +23,7 @@ interface PlantDao {
     @Query("SELECT * from plants ORDER BY nameVariety ASC")
     fun getAllPlants(): Flow<List<Plant>>
 
+
     @Query("SELECT * from plants WHERE id = :id")
     fun getPlant(id: Int): Flow<Plant>
 
@@ -40,5 +41,11 @@ interface PlantDao {
 
     @Query("SELECT * from plants WHERE category=:categoryPlant ORDER BY nameVariety ASC")
     fun getPlantsByCategory(categoryPlant: CategoryPlant): Flow<List<Plant>>
+
+    @Query("SELECT * from plants WHERE result=:resultPlant ORDER BY nameVariety ASC")
+    fun getPlantsByResult(resultPlant: ResultPlant): Flow<List<Plant>>
+
+    @Query("SELECT * from plants WHERE result=:resultPlant AND category=:categoryPlant ORDER BY nameVariety ASC")
+    fun getPlantsByResultAndCategory(resultPlant: ResultPlant, categoryPlant: CategoryPlant): Flow<List<Plant>>
 
 }

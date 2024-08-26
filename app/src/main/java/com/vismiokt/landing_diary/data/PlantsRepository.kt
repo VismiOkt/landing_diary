@@ -24,4 +24,8 @@ interface PlantsRepository {
 
     fun getPlantsByCategory(categoryPlant: CategoryPlant): Flow<List<Plant>>
 
+    fun getPlantsByResult(resultPlant: ResultPlant): Flow<List<Plant>>
+
+    fun getPlantsByResultAndCategory(resultPlant: ResultPlant, categoryPlant: CategoryPlant): Flow<List<Plant>>
+
 }

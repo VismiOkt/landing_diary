@@ -23,4 +23,11 @@ class OfflinePlantsRepository(private val plantDao: PlantDao) : PlantsRepository
     override suspend fun deleteImageUri(imageUri: Uri, plantId: Int) = plantDao.deleteImageUri(imageUri, plantId)
 
     override fun getPlantsByCategory(categoryPlant: CategoryPlant): Flow<List<Plant>> = plantDao.getPlantsByCategory(categoryPlant)
+
+    override fun getPlantsByResult(resultPlant: ResultPlant): Flow<List<Plant>> = plantDao.getPlantsByResult(resultPlant)
+
+    override fun getPlantsByResultAndCategory(
+        resultPlant: ResultPlant,
+        categoryPlant: CategoryPlant
+    ): Flow<List<Plant>> = plantDao.getPlantsByResultAndCategory(resultPlant, categoryPlant)
 }
