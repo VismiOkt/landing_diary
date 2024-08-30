@@ -3,6 +3,7 @@ package com.vismiokt.landing_diary.ui
 import android.annotation.SuppressLint
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -49,6 +50,7 @@ import com.vismiokt.landing_diary.data.CategoryPlant
 import com.vismiokt.landing_diary.data.FilterPlant
 import com.vismiokt.landing_diary.data.Plant
 import com.vismiokt.landing_diary.data.ResultPlant
+import kotlinx.coroutines.flow.Flow
 
 @SuppressLint("StateFlowValueCalledInComposition")
 @RequiresApi(Build.VERSION_CODES.O)
@@ -87,7 +89,9 @@ fun HomeScreen(
                 onClickValueResult = { viewModel.onClickValueResult(it) },
                 onClickValueCategory = { viewModel.onClickValueCategory(it) },
                 deleteFilterCategory = { viewModel.deleteFilterCategory() },
-                deleteFilterResult = { viewModel.deleteFilterResult() }
+                deleteFilterResult = { viewModel.deleteFilterResult() },
+                deleteFilterYear = { viewModel.deleteFilterYear() },
+                onClickValueYear = { viewModel.onClickValueYear(it) }
             )
             if (plants.value.isEmpty()) {
                 Text(
@@ -127,9 +131,12 @@ fun FilterAppBar(
     padding: PaddingValues,
     onClickValueCategory: (CategoryPlant) -> Unit,
     onClickValueResult: (ResultPlant) -> Unit,
+    onClickValueYear: (String) -> Unit,
     deleteFilterCategory: () -> Unit,
-    deleteFilterResult: () -> Unit
+    deleteFilterResult: () -> Unit,
+    deleteFilterYear: () -> Unit
 ) {
+    val plantsYear = uiState.plantsYear.collectAsState(initial = listOf())
     Row(
         modifier = Modifier
             .padding(
@@ -137,7 +144,8 @@ fun FilterAppBar(
                 end = padding.calculateEndPadding(LocalLayoutDirection.current),
                 top = padding.calculateTopPadding()
             )
-            .padding(start = 10.dp, end = 2.dp),
+            .padding(start = 10.dp, end = 2.dp)
+            //     .scrollable(),
     ) {
         FilterPlant.entries.forEach {
             var expanded by remember { mutableStateOf(false) }
@@ -238,7 +246,48 @@ fun FilterAppBar(
                 }
 
                 FilterPlant.year -> {
-
+                    Box(modifier = Modifier.weight(1f)) {
+                        FilterChip(
+                            selected = uiState.onFilterYear,
+                            onClick = {
+                                expanded = true
+                            },
+                            label = {
+                                if (uiState.filterYear == null) {
+                                    Text(stringResource(it.title))
+                                } else {
+                                    Text(text = uiState.filterYear)
+                                }
+                            },
+                            trailingIcon = {
+                                Icon(Icons.Outlined.ArrowDropDown, contentDescription = null)
+                            },
+                            leadingIcon = {
+                                if (uiState.onFilterYear) {
+                                    IconButton(onClick = { deleteFilterYear() }, modifier = Modifier.size(16.dp)) {
+                                        Icon(
+                                            Icons.Outlined.Clear,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(16.dp)
+                                        )
+                                    }
+                                }
+                            },
+                            modifier = Modifier
+                                .padding(end = 8.dp)
+                                .fillMaxWidth()
+                        )
+                        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                            plantsYear.value.forEach {
+                                DropdownMenuItem(
+                                    text = { Text(text = it) },
+                                    onClick = {
+                                        expanded = false
+                                        onClickValueYear(it)
+                                    })
+                            }
+                        }
+                    }
 
                 }
 

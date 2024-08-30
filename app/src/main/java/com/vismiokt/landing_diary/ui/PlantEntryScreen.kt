@@ -156,7 +156,7 @@ fun PlantEntryBody(
                     onClick = {
                         onValueChange(
                             plantDetails.copy(
-                                timePlantSeeds = datePickerState.selectedDateMillis ?: 0
+                                timePlantSeeds = FormatDateUseCase().convertMillisToLocalDate(datePickerState.selectedDateMillis ?: 0)
                             )
                         )
                         closeDatePickerDialog()
@@ -238,7 +238,7 @@ fun PlantEntryBody(
                 value = setDate(plantDetails),
                 label = { Text(stringResource(R.string.entry_plant_time_plant_seeds_input)) },
                 onValueChange = {
-                    onValueChange(plantDetails.copy(timePlantSeeds = it.toLongOrNull() ?: 0L))
+                    onValueChange(plantDetails.copy(timePlantSeeds = FormatDateUseCase().convertMillisToLocalDate(it.toLongOrNull() ?: 0L)))
                 })
             IconButton(
                 onClick = {

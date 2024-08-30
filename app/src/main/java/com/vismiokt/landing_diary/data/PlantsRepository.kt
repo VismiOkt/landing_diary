@@ -2,6 +2,7 @@ package com.vismiokt.landing_diary.data
 
 import android.net.Uri
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalDate
 
 interface PlantsRepository {
     suspend fun insertPlant(plant: Plant): Long
@@ -27,5 +28,15 @@ interface PlantsRepository {
     fun getPlantsByResult(resultPlant: ResultPlant): Flow<List<Plant>>
 
     fun getPlantsByResultAndCategory(resultPlant: ResultPlant, categoryPlant: CategoryPlant): Flow<List<Plant>>
+
+    fun getPlantsByYear(year: String): Flow<List<Plant>>
+
+    fun getPlantsByResultAndCategoryAndYear(resultPlant: ResultPlant, categoryPlant: CategoryPlant, year: String): Flow<List<Plant>>
+
+    fun getPlantsByResultAndYear(resultPlant: ResultPlant, year: String): Flow<List<Plant>>
+
+    fun getPlantsByCategoryAndYear(categoryPlant: CategoryPlant, year: String): Flow<List<Plant>>
+
+    suspend fun getPlantsDate(): Flow<List<String>>
 
 }

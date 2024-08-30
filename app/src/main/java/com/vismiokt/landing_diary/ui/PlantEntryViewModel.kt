@@ -17,7 +17,9 @@ import com.vismiokt.landing_diary.domain.FormatDateUseCase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 
+@RequiresApi(Build.VERSION_CODES.O)
 class PlantEntryViewModel(private val repository: PlantsRepository) : ViewModel() {
 
     var plantUiState by mutableStateOf(PlantEntryUiState())
@@ -85,19 +87,20 @@ class PlantEntryViewModel(private val repository: PlantsRepository) : ViewModel(
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun setDate(plantDetails: PlantDetails): String {
-        return if (plantUiState.plantDetails.timePlantSeeds == 0L) {
-            updateUiState(plantDetails.copy(timePlantSeeds = FormatDateUseCase().getDateNowMillis()))
-                FormatDateUseCase().getDateNowString()
-        } else {
-            FormatDateUseCase().getDateSet(plantUiState.plantDetails)
-        }
+        return FormatDateUseCase().getDateSet(plantUiState.plantDetails)
+//        if (plantUiState.plantDetails.timePlantSeeds == 0L) {
+//            updateUiState(plantDetails.copy(timePlantSeeds = FormatDateUseCase().getDateNowMillis()))
+//                FormatDateUseCase().getDateNowString()
+//        } else {
+//            FormatDateUseCase().getDateSet(plantUiState.plantDetails)
+//        }
 
     }
 
 
 }
 
-data class PlantEntryUiState(
+data class PlantEntryUiState @RequiresApi(Build.VERSION_CODES.O) constructor(
     val plantDetails: PlantDetails = PlantDetails(),
     val isEntryValid: Boolean = false,
     val openDialogCalendar: Boolean = false,
@@ -105,11 +108,12 @@ data class PlantEntryUiState(
     //   val uriImgList: List<ImageUri> = listOf()
 )
 
-data class PlantDetails(
+data class PlantDetails @RequiresApi(Build.VERSION_CODES.O) constructor(
     val id: Int = 0,
     val nameVariety: String = "",
     val category: CategoryPlant = CategoryPlant.other,
-    val timePlantSeeds: Long = 0,
+  //  val timePlantSeeds: Long = 0,
+    val timePlantSeeds: LocalDate = LocalDate.now(),
     val dateLanding: Long = 0,
     val price: String = "",
     val placeOfPurchase: String = "",
@@ -118,6 +122,7 @@ data class PlantDetails(
     //   val uriImgList: List<Uri> = listOf()
 )
 
+@RequiresApi(Build.VERSION_CODES.O)
 fun PlantDetails.toPlant(): Plant = Plant(
     id = id,
     nameVariety = nameVariety,
@@ -131,6 +136,7 @@ fun PlantDetails.toPlant(): Plant = Plant(
     //   uriImgList = uriImgList
 )
 
+@RequiresApi(Build.VERSION_CODES.O)
 fun Plant.toPlantDetails(): PlantDetails = PlantDetails(
     id = id,
     nameVariety = nameVariety,

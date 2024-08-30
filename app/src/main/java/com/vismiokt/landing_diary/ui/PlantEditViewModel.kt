@@ -146,12 +146,13 @@ class PlantEditViewModel (private val repository: PlantsRepository,
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun setDate(plantDetails: PlantDetails): String {
-        return if (plantUiState.plantDetails.timePlantSeeds == 0L) {
-            updateUiState(plantDetails.copy(timePlantSeeds = FormatDateUseCase().getDateNowMillis()))
-            FormatDateUseCase().getDateNowString()
-        } else {
-            FormatDateUseCase().getDateSet(plantUiState.plantDetails)
-        }
+        return FormatDateUseCase().getDateSet(plantUiState.plantDetails)
+//        if (plantUiState.plantDetails.timePlantSeeds == 0L) {
+//            updateUiState(plantDetails.copy(timePlantSeeds = FormatDateUseCase().getDateNowMillis()))
+//            FormatDateUseCase().getDateNowString()
+//        } else {
+//            FormatDateUseCase().getDateSet(plantUiState.plantDetails)
+//        }
 
     }
 

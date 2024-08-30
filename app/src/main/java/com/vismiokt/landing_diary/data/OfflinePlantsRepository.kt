@@ -2,6 +2,7 @@ package com.vismiokt.landing_diary.data
 
 import android.net.Uri
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalDate
 
 class OfflinePlantsRepository(private val plantDao: PlantDao) : PlantsRepository {
     override suspend fun insertPlant(plant: Plant): Long = plantDao.insertPlant(plant)
@@ -26,8 +27,37 @@ class OfflinePlantsRepository(private val plantDao: PlantDao) : PlantsRepository
 
     override fun getPlantsByResult(resultPlant: ResultPlant): Flow<List<Plant>> = plantDao.getPlantsByResult(resultPlant)
 
+    override fun getPlantsByYear(year: String,): Flow<List<Plant>> = plantDao.getPlantsByYear("$year-01-01",
+        "$year-12-31")
+
+    override suspend fun getPlantsDate(): Flow<List<String>> = plantDao.getPlantsDate()
+
+    override fun getPlantsByCategoryAndYear(
+        categoryPlant: CategoryPlant,
+        year: String,
+    ): Flow<List<Plant>> = plantDao.getPlantsByCategoryAndYear(
+        categoryPlant,
+        "$year-01-01",
+        "$year-12-31"
+    )
+
+    override fun getPlantsByResultAndCategoryAndYear(
+        resultPlant: ResultPlant,
+        categoryPlant: CategoryPlant,
+        year: String,
+    ): Flow<List<Plant>> = plantDao.getPlantsByResultAndCategoryAndYear(resultPlant, categoryPlant, "$year-01-01",
+        "$year-12-31")
+
+    override fun getPlantsByResultAndYear(
+        resultPlant: ResultPlant,
+        year: String,
+    ): Flow<List<Plant>> = plantDao.getPlantsByResultAndYear(resultPlant, "$year-01-01",
+        "$year-12-31")
+
     override fun getPlantsByResultAndCategory(
         resultPlant: ResultPlant,
         categoryPlant: CategoryPlant
     ): Flow<List<Plant>> = plantDao.getPlantsByResultAndCategory(resultPlant, categoryPlant)
+
+
 }

@@ -61,6 +61,7 @@ import coil.request.ImageRequest
 import com.vismiokt.landing_diary.R
 import com.vismiokt.landing_diary.data.CategoryPlant
 import com.vismiokt.landing_diary.data.ResultPlant
+import com.vismiokt.landing_diary.domain.FormatDateUseCase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import java.util.Currency
@@ -153,7 +154,7 @@ fun PlantEditBody(
                     onClick = {
                         onValueChange(
                             plantDetails.copy(
-                                timePlantSeeds = datePickerState.selectedDateMillis ?: 0
+                                timePlantSeeds = FormatDateUseCase().convertMillisToLocalDate(datePickerState.selectedDateMillis ?: 0)
                             )
                         )
                         closeDatePickerDialog()
@@ -235,7 +236,7 @@ fun PlantEditBody(
                 value = setDate(plantDetails),
                 label = { Text(stringResource(R.string.entry_plant_time_plant_seeds_input)) },
                 onValueChange = {
-                    onValueChange(plantDetails.copy(timePlantSeeds = it.toLongOrNull() ?: 0L))
+                    onValueChange(plantDetails.copy(timePlantSeeds = FormatDateUseCase().convertMillisToLocalDate(it.toLongOrNull() ?: 0L)))
                 })
             IconButton(
                 onClick = {

@@ -71,11 +71,21 @@ class PlantCardViewModel(
         plantUiState = plantUiState.copy(openDeleteDialog = false)
     }
 
+    fun openImageDialog(uri: Uri) {
+        plantUiState = plantUiState.copy(openImageDialog = true, openImageUri = uri)
+    }
+
+    fun closeImageDialog() {
+        plantUiState = plantUiState.copy(openImageDialog = false)
+    }
+
 
 }
 
 data class PlantCardUiState (
     val plantDetails: PlantDetails = PlantDetails(),
     val imageUriList: List<Uri> = listOf(),
-    val openDeleteDialog: Boolean = false
+    val openDeleteDialog: Boolean = false,
+    val openImageDialog: Boolean = false,
+    val openImageUri: Uri = Uri.EMPTY
 )

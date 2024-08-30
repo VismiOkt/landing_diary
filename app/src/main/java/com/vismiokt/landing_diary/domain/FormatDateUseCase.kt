@@ -61,7 +61,7 @@ class FormatDateUseCase {
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun getDateSet(plantDetails: PlantDetails): String {
-        return FormatDateUseCase().dateToString(FormatDateUseCase().convertMillisToLocalDate(plantDetails.timePlantSeeds))
+        return FormatDateUseCase().dateToString(plantDetails.timePlantSeeds)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)

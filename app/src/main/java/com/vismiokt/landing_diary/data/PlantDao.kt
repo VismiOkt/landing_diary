@@ -8,6 +8,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalDate
 
 @Dao
 interface PlantDao {
@@ -47,5 +48,20 @@ interface PlantDao {
 
     @Query("SELECT * from plants WHERE result=:resultPlant AND category=:categoryPlant ORDER BY nameVariety ASC")
     fun getPlantsByResultAndCategory(resultPlant: ResultPlant, categoryPlant: CategoryPlant): Flow<List<Plant>>
+
+    @Query("SELECT * from plants WHERE result=:resultPlant AND category=:categoryPlant AND (date(timePlantSeeds) BETWEEN :date1 AND :date2) ORDER BY nameVariety ASC")
+    fun getPlantsByResultAndCategoryAndYear(resultPlant: ResultPlant, categoryPlant: CategoryPlant, date1: String, date2: String): Flow<List<Plant>>
+
+    @Query("SELECT * from plants WHERE (date(timePlantSeeds) BETWEEN :date1 AND :date2)")
+    fun getPlantsByYear(date1: String, date2: String): Flow<List<Plant>>
+
+    @Query("SELECT * from plants WHERE result=:resultPlant AND (date(timePlantSeeds) BETWEEN :date1 AND :date2) ORDER BY nameVariety ASC")
+    fun getPlantsByResultAndYear(resultPlant: ResultPlant, date1: String, date2: String): Flow<List<Plant>>
+
+    @Query("SELECT * from plants WHERE category=:categoryPlant AND (date(timePlantSeeds) BETWEEN :date1 AND :date2) ORDER BY nameVariety ASC")
+    fun getPlantsByCategoryAndYear(categoryPlant: CategoryPlant, date1: String, date2: String): Flow<List<Plant>>
+
+    @Query("SELECT date(timePlantSeeds) from plants")
+    fun getPlantsDate(): Flow<List<String>>
 
 }
