@@ -8,6 +8,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.animateZoomBy
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.rememberTransformableState
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -24,7 +25,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Create
 import androidx.compose.material.icons.outlined.Delete
@@ -61,6 +64,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import coil.size.Size
 import com.vismiokt.landing_diary.R
 import com.vismiokt.landing_diary.data.ResultPlant
 import com.vismiokt.landing_diary.domain.FormatDateUseCase
@@ -123,11 +127,13 @@ fun PlantCard(
             )
             
         }
+        val state = rememberScrollState()
         Card(
             modifier = Modifier
                 .padding(padding)
                 .padding(8.dp)
                 .fillMaxWidth()
+                .verticalScroll(state)
         ) {
             Column(modifier = Modifier.padding(8.dp)) {
                 Row {
@@ -202,6 +208,7 @@ fun PlantCard(
                         Text(text = stringResource(id = uiState.plantDetails.result.text))
                     }
                 }
+                Spacer(modifier = Modifier.height(16.dp))
                 ImagePreview(
                     selectedImages = uiState.imageUriList,
                     onImage = { viewModel.openImageDialog(it) }
@@ -229,6 +236,7 @@ fun ImagePreview(
                 AsyncImage(
                     modifier = Modifier
                         .size(250.dp)
+                        .padding(end = 8.dp)
                         .clickable { onImage(uri) },
                     model = ImageRequest.Builder(LocalContext.current)
                         .data(uri)
@@ -249,7 +257,12 @@ private fun TransformableImage(
     var rotation by remember { mutableStateOf(0f) }
     var offset by remember { mutableStateOf(Offset.Zero) }
     val coroutineScope = rememberCoroutineScope()
-    BoxWithConstraints (modifier = Modifier.fillMaxWidth().aspectRatio(16f / 12f)) {
+    BoxWithConstraints (modifier = Modifier
+        .fillMaxWidth()
+        .fillMaxHeight(0.6f)
+    //    .aspectRatio(16f, true)
+    ) {
+        
         val state = rememberTransformableState { zoomChange, offsetChange, rotationChange ->
             scale =  (scale * zoomChange).coerceIn(1f, 5f)
             rotation += rotationChange
@@ -264,8 +277,10 @@ private fun TransformableImage(
         }
         AsyncImage(
             modifier = Modifier
-             //   .offset { IntOffset(offset.x.roundToInt(), offset.y.roundToInt()) }
-                .fillMaxWidth()
+                //   .aspectRatio(1f, true)
+                //   .offset { IntOffset(offset.x.roundToInt(), offset.y.roundToInt()) }
+
+                //     .fillMaxWidth()
                 .graphicsLayer(
                     scaleX = scale,
                     scaleY = scale,
@@ -273,7 +288,6 @@ private fun TransformableImage(
                     translationX = offset.x,
                     translationY = offset.y
                 )
-                .transformable(state = state)
                 .pointerInput(Unit) {
                     detectTapGestures(
                         onDoubleTap = {
@@ -281,6 +295,7 @@ private fun TransformableImage(
                         }
                     )
                 }
+                .transformable(state = state)
                 ,
             //      .weight(0.8f),
             //   .size(550.dp),

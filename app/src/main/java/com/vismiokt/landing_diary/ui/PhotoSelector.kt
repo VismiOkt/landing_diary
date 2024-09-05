@@ -2,6 +2,7 @@ package com.vismiokt.landing_diary.ui
 
 import android.content.Intent
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -95,46 +96,35 @@ fun PhotoPickerScreen(
 ) {
     var photoUri: Uri? by remember { mutableStateOf(null) }
     val context = LocalContext.current
+    val toastText = stringResource(R.string.photo_selector_no_image_selected)
 
     val launcher = rememberLauncherForActivityResult(contract = ActivityResultContracts.PickVisualMedia(), onResult =  { uri ->
-        photoUri = uri
-        val flags = Intent.FLAG_GRANT_READ_URI_PERMISSION //or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-        val resolver = context.contentResolver
-        resolver.takePersistableUriPermission(uri ?: Uri.EMPTY, flags)
+        if (uri != null) {
+            photoUri = uri
+            val flags = Intent.FLAG_GRANT_READ_URI_PERMISSION //or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+            val resolver = context.contentResolver
+            resolver.takePersistableUriPermission(uri, flags)
+        } else {
+            Toast.makeText(context, toastText, Toast.LENGTH_SHORT).show()
+        }
+
     }
     )
 
-    Column(modifier = Modifier.padding(start = 8.dp, end = 8.dp, bottom = 8.dp).fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(modifier = Modifier
+        .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
+        .fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         Button(
             onClick = {
-                launcher.launch(PickVisualMediaRequest(
-                    mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly
-                ))
+                   launcher.launch(PickVisualMediaRequest(
+                       mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly
+                   ))
             },
         ) {
             Text(stringResource(R.string.entry_plant_add_image_from_gallery))
         }
-
-
         if (photoUri != null) {
             saveImg(photoUri ?: Uri.EMPTY)
-//            val painter = rememberAsyncImagePainter(
-//                ImageRequest
-//                    .Builder(LocalContext.current)
-//                    .data(data = photoUri)
-//                    .build()
-//            )
-//
-//            Image(
-//                painter = painter,
-//                contentDescription = null,
-//                modifier = Modifier
-//                    .padding(5.dp)
-//                    .fillMaxWidth()
-//                    .border(6.0.dp, Color.Gray),
-//                contentScale = ContentScale.Crop
-//            )
-
         }
     }
 }

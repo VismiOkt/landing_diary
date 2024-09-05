@@ -41,4 +41,5 @@
     <string name="plant_filter_category">Категория</string>
     <string name="plant_filter_result">Результат</string>
     <string name="plant_filter_year">Год</string>
+    <string name="photo_selector_no_image_selected">Изображение не было выбрано</string>
 </resources>

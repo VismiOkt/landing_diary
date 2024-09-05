@@ -3,7 +3,10 @@ package com.vismiokt.landing_diary.ui
 import android.annotation.SuppressLint
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.gestures.ScrollableState
+import androidx.compose.foundation.gestures.rememberScrollableState
 import androidx.compose.foundation.gestures.scrollable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -16,6 +19,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.ArrowDropDown
@@ -93,7 +97,7 @@ fun HomeScreen(
                 deleteFilterYear = { viewModel.deleteFilterYear() },
                 onClickValueYear = { viewModel.onClickValueYear(it) }
             )
-            if (plants.value.isEmpty()) {
+            if (plants.value.isEmpty() && !uiState.onFilterYear && !uiState.onFilterResult && !uiState.onFilterCategory) {
                 Text(
                     text = stringResource(R.string.app_no_plant_description),
                     textAlign = TextAlign.Center,
@@ -137,6 +141,7 @@ fun FilterAppBar(
     deleteFilterYear: () -> Unit
 ) {
     val plantsYear = uiState.plantsYear.collectAsState(initial = listOf())
+    val state = rememberScrollState()
     Row(
         modifier = Modifier
             .padding(
@@ -145,13 +150,13 @@ fun FilterAppBar(
                 top = padding.calculateTopPadding()
             )
             .padding(start = 10.dp, end = 2.dp)
-            //     .scrollable(),
+            .horizontalScroll(state),
     ) {
         FilterPlant.entries.forEach {
             var expanded by remember { mutableStateOf(false) }
             when (it) {
                 FilterPlant.category -> {
-                    Box(modifier = Modifier.weight(1f)) {
+                    Box {
                         FilterChip(
                             selected = uiState.onFilterCategory,
                             onClick = {
@@ -199,7 +204,7 @@ fun FilterAppBar(
                 }
 
                 FilterPlant.result -> {
-                    Box(modifier = Modifier.weight(1f)) {
+                    Box {
                         FilterChip(
                             selected = uiState.onFilterResult,
                             onClick = {
@@ -246,7 +251,7 @@ fun FilterAppBar(
                 }
 
                 FilterPlant.year -> {
-                    Box(modifier = Modifier.weight(1f)) {
+                    Box {
                         FilterChip(
                             selected = uiState.onFilterYear,
                             onClick = {
@@ -299,35 +304,35 @@ fun FilterAppBar(
     }
 }
 
-@Composable
-fun DropdownItem(
-    values: FilterPlant,
-    onClickValueCategory: (CategoryPlant) -> Unit,
-    onClickValueResult: (ResultPlant) -> Unit
-) {
-    when (values) {
-        FilterPlant.category -> {
-            CategoryPlant.entries.forEach {
-                DropdownMenuItem(
-                    text = { Text(text = stringResource(it.title)) },
-                    onClick = { onClickValueCategory(it) })
-            }
-        }
-
-        FilterPlant.result -> {
-            ResultPlant.entries.forEach {
-                DropdownMenuItem(
-                    text = { Text(text = stringResource(it.text)) },
-                    onClick = { onClickValueResult(it) })
-            }
-        }
-
-        FilterPlant.year -> {
-
-
-        }
-
-    }
-
-}
+//@Composable
+//fun DropdownItem(
+//    values: FilterPlant,
+//    onClickValueCategory: (CategoryPlant) -> Unit,
+//    onClickValueResult: (ResultPlant) -> Unit
+//) {
+//    when (values) {
+//        FilterPlant.category -> {
+//            CategoryPlant.entries.forEach {
+//                DropdownMenuItem(
+//                    text = { Text(text = stringResource(it.title)) },
+//                    onClick = { onClickValueCategory(it) })
+//            }
+//        }
+//
+//        FilterPlant.result -> {
+//            ResultPlant.entries.forEach {
+//                DropdownMenuItem(
+//                    text = { Text(text = stringResource(it.text)) },
+//                    onClick = { onClickValueResult(it) })
+//            }
+//        }
+//
+//        FilterPlant.year -> {
+//
+//
+//        }
+//
+//    }
+//
+//}
 

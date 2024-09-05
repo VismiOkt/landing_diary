@@ -3,9 +3,14 @@ package com.vismiokt.landing_diary.ui
 
 import android.content.ContentValues
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
@@ -20,7 +25,10 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -75,6 +83,7 @@ fun CameraPreviewScreen(
                     navigateBack,
                     saveImg = viewModel::addImageUri
                 )
+
             },
             modifier = Modifier
                 .align(
@@ -121,7 +130,6 @@ private fun captureImage(imageCapture: ImageCapture, context: Context, navigateB
                 println("Successs")
                 saveImg(outputFileResults.savedUri ?: Uri.EMPTY)
                 navigateBack()
-
             }
 
             override fun onError(exception: ImageCaptureException) {
