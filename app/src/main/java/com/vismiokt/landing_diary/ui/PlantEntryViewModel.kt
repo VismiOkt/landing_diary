@@ -38,7 +38,6 @@ class PlantEntryViewModel(private val repository: PlantsRepository) : ViewModel(
         plantUiState = PlantEntryUiState(
             plantDetails = plantDetails,
             isEntryValid = validatePlant(plantDetails),
-            //         uriImgList = _uriImgList.value.map { ImageUri(id = 0, plantId = plantDetails.id, uriImg = it) }
         )
     }
 
@@ -68,32 +67,29 @@ class PlantEntryViewModel(private val repository: PlantsRepository) : ViewModel(
                     )
                 })
             }
-            //        if (_uriImgList.value != )
-//            viewModelScope.launch {
-//                repository.addImageUriList(_uriImgList.value.map { ImageUri(id = 0, plantId = id.toInt(), uriImg = it) })
-//            }
-
         }
     }
 
     fun closeDatePickerDialog() {
         plantUiState = plantUiState.copy(openDialogCalendar = false)
-
     }
 
     fun openDatePickerDialog() {
         plantUiState = plantUiState.copy(openDialogCalendar = true)
     }
 
+    fun closeCamera() {
+        plantUiState = plantUiState.copy(showCamera = false)
+
+    }
+
+    fun openCamera() {
+        plantUiState = plantUiState.copy(showCamera = true)
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     fun setDate(plantDetails: PlantDetails): String {
         return FormatDateUseCase().getDateSet(plantUiState.plantDetails)
-//        if (plantUiState.plantDetails.timePlantSeeds == 0L) {
-//            updateUiState(plantDetails.copy(timePlantSeeds = FormatDateUseCase().getDateNowMillis()))
-//                FormatDateUseCase().getDateNowString()
-//        } else {
-//            FormatDateUseCase().getDateSet(plantUiState.plantDetails)
-//        }
 
     }
 
@@ -104,22 +100,20 @@ data class PlantEntryUiState @RequiresApi(Build.VERSION_CODES.O) constructor(
     val plantDetails: PlantDetails = PlantDetails(),
     val isEntryValid: Boolean = false,
     val openDialogCalendar: Boolean = false,
-    val openCameraLd: Boolean = false
-    //   val uriImgList: List<ImageUri> = listOf()
+    val openCameraLd: Boolean = false,
+    val showCamera: Boolean = false
 )
 
 data class PlantDetails @RequiresApi(Build.VERSION_CODES.O) constructor(
     val id: Int = 0,
     val nameVariety: String = "",
     val category: CategoryPlant = CategoryPlant.other,
-  //  val timePlantSeeds: Long = 0,
     val timePlantSeeds: LocalDate = LocalDate.now(),
     val dateLanding: Long = 0,
     val price: String = "",
     val placeOfPurchase: String = "",
     val result: ResultPlant = ResultPlant.unknown,
     val note: String = "",
-    //   val uriImgList: List<Uri> = listOf()
 )
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -133,7 +127,6 @@ fun PlantDetails.toPlant(): Plant = Plant(
     placeOfPurchase = placeOfPurchase,
     result = result,
     note = note,
-    //   uriImgList = uriImgList
 )
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -147,7 +140,6 @@ fun Plant.toPlantDetails(): PlantDetails = PlantDetails(
     placeOfPurchase = placeOfPurchase,
     result = result,
     note = note,
-//    uriImgList = uriImgList
 
 )
 

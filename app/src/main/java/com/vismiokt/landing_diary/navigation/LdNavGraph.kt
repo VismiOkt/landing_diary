@@ -45,9 +45,7 @@ fun LdNavigation(
         }
         composable(route = Screen.PlantEntryDestination.route) {
             PlantEntryScreen(
-                navigateBack = { navController.navigateUp() },
-                navigateCamera = { navController.navigate(Screen.RequiredPermissionDestination.route) },
-
+                navigateBack = { navController.navigateUp() }
             )
         }
         composable(route = Screen.PlantEditDestination.routeFull,
@@ -57,13 +55,7 @@ fun LdNavigation(
         ) {
             PlantEditScreen(
                 navigateBack = { navController.navigateUp() },
-                navigateCamera = { navController.navigate(Screen.RequiredPermissionDestination.route) },
                 navigateToPlantDetails = { navController.navigate("${Screen.PlantCardDestination.route}/${it}") }
-            )
-        }
-        composable(route = Screen.RequiredPermissionDestination.route) {
-            RequiredPermission(
-                navigateBack = { navController.navigateUp() },
             )
         }
     }

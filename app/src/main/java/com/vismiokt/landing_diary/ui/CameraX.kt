@@ -19,9 +19,12 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -36,6 +39,8 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.vismiokt.landing_diary.R
@@ -48,10 +53,10 @@ import kotlin.coroutines.suspendCoroutine
 @Composable
 fun CameraPreviewScreen(
     navigateBack: () -> Unit,
- //   saveImg: (Uri) -> Unit
+       saveImg: (Uri) -> Unit
 
 ) {
-    val viewModel: PlantEntryViewModel = viewModel(factory = AppViewModelProvider.Factory)
+ //   val viewModel: PlantEntryViewModel = viewModel(factory = AppViewModelProvider.Factory)
     val lensFacing = CameraSelector.LENS_FACING_BACK
     val lifecycleOwner = LocalLifecycleOwner.current
     val context = LocalContext.current
@@ -63,38 +68,59 @@ fun CameraPreviewScreen(
     val imageCapture = remember {
         ImageCapture.Builder().build()
     }
-    LaunchedEffect(lensFacing) {
-        val cameraProvider = context.getCameraProvider()
-        cameraProvider.unbindAll()
-        cameraProvider.bindToLifecycle(lifecycleOwner, cameraxSelector, preview, imageCapture)
-        preview.setSurfaceProvider(previewView.surfaceProvider)
-    }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        AndroidView({ previewView }, modifier = Modifier.fillMaxSize())
-        TopBar(title = "", alpha = 0.3f) {
-            navigateBack()
-        }
-        Button(
-            onClick = {
-                captureImage(
-                    imageCapture,
-                    context,
-                    navigateBack,
-                    saveImg = viewModel::addImageUri
-                )
+    Dialog(
+        onDismissRequest = { navigateBack() },
+        properties = DialogProperties(usePlatformDefaultWidth = false),
+    ) {
+        Surface (
+            modifier = Modifier.fillMaxSize()
+        ){
+            LaunchedEffect(lensFacing) {
+                val cameraProvider = context.getCameraProvider()
+                cameraProvider.unbindAll()
+                cameraProvider.bindToLifecycle(lifecycleOwner, cameraxSelector, preview, imageCapture)
+                preview.setSurfaceProvider(previewView.surfaceProvider)
+            }
 
-            },
-            modifier = Modifier
-                .align(
-                    Alignment.BottomCenter
-                )
-                .padding(30.dp)
-        ) {
-            Text(text = stringResource(R.string.entry_plant_photograph))
+            Card(modifier = Modifier.fillMaxSize()) {
+                Box {
+                    AndroidView(
+                        { previewView },
+                            modifier = Modifier.fillMaxSize()
+                    )
+                    Button(
+                        onClick = {
+                            captureImage(
+                                imageCapture,
+                                context,
+                                navigateBack,
+                                saveImg = saveImg
+                            )
+
+                        },
+                        modifier = Modifier
+                            .align(
+                                Alignment.BottomCenter
+                            )
+                            .padding(30.dp)
+                    ) {
+                        Text(text = stringResource(R.string.entry_plant_photograph))
+                    }
+                }
         }
+
+
+//        TopBar(title = "", alpha = 0.3f) {
+//            navigateBack()
+//        }
+
+            }
+
+
     }
 }
+
 
 private suspend fun Context.getCameraProvider(): ProcessCameraProvider =
     suspendCoroutine { continuation ->
@@ -106,7 +132,12 @@ private suspend fun Context.getCameraProvider(): ProcessCameraProvider =
     }
 
 @RequiresApi(Build.VERSION_CODES.O)
-private fun captureImage(imageCapture: ImageCapture, context: Context, navigateBack: () -> Unit, saveImg: (Uri) -> Unit) {
+private fun captureImage(
+    imageCapture: ImageCapture,
+    context: Context,
+    navigateBack: () -> Unit,
+    saveImg: (Uri) -> Unit
+) {
     val name = FormatDateUseCase().getDateNowForName()
     val contentValues = ContentValues().apply {
         put(MediaStore.MediaColumns.DISPLAY_NAME, name)

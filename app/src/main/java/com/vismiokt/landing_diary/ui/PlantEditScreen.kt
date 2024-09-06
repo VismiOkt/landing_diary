@@ -72,7 +72,6 @@ import java.util.Locale
 @Composable
 fun PlantEditScreen(
     navigateBack: () -> Unit,
-    navigateCamera: () -> Unit,
     navigateToPlantDetails: (Int) -> Unit
 ) {
     val viewModel: PlantEditViewModel = viewModel(factory = AppViewModelProvider.Factory)
@@ -103,13 +102,13 @@ fun PlantEditScreen(
                 } else {
                     Toast.makeText(context, toastText, Toast.LENGTH_SHORT).show()
                 }
-         //       navigateBack()
             },
             setDate = viewModel::setDate,
-            requiredPermission = navigateCamera,
             saveImgUri = viewModel::addImageUri,
             imageUriList = viewModel.uriImgList,
             onDeleteUri = { viewModel.deleteImageUri(it) },
+            closeCamera = viewModel::closeCamera,
+            openCamera = viewModel::openCamera,
             modifier = Modifier
                 .verticalScroll(rememberScrollState())
                 .padding(
@@ -132,16 +131,21 @@ fun PlantEditBody(
     onValueChange: (PlantDetails) -> Unit = {},
     closeDatePickerDialog: () -> Unit,
     openDatePickerDialog: () -> Unit,
+    closeCamera: () -> Unit,
+    openCamera: () -> Unit,
     onSave: () -> Unit,
     setDate: (PlantDetails) -> String,
     imageUriList: Flow<List<Uri>>,
-    requiredPermission: () -> Unit,
     saveImgUri: (Uri) -> Unit,
     onDeleteUri: (Uri) -> Unit,
     modifier: Modifier
 ) {
 
     val plantDetails = plantUiState.plantDetails
+
+    if (plantUiState.showCamera) {
+        RequiredPermission (navigateBack = { closeCamera() }, saveImg = saveImgUri )
+    }
 
     if (plantUiState.openDialogCalendar) {
         val datePickerState = rememberDatePickerState()
@@ -336,7 +340,7 @@ fun PlantEditBody(
 
         Button(
             onClick = {
-                requiredPermission()
+                openCamera()
 
             },
             modifier = Modifier

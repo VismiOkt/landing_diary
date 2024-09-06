@@ -57,7 +57,6 @@ class PlantEditViewModel (private val repository: PlantsRepository,
         viewModelScope.launch {
             plantUiState = PlantEditUiState(
                 plantDetails = repository.getPlantStream(plantId).filterNotNull().map { it.toPlantDetails() }.first(),
-        //        uriImgList = repository.getImageUri(plantId)
             )
         }
         initialList(plantId)
@@ -144,16 +143,18 @@ class PlantEditViewModel (private val repository: PlantsRepository,
         plantUiState = plantUiState.copy(openDialogCalendar = true)
     }
 
+    fun closeCamera() {
+        plantUiState = plantUiState.copy(showCamera = false)
+
+    }
+
+    fun openCamera() {
+        plantUiState = plantUiState.copy(showCamera = true)
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     fun setDate(plantDetails: PlantDetails): String {
         return FormatDateUseCase().getDateSet(plantUiState.plantDetails)
-//        if (plantUiState.plantDetails.timePlantSeeds == 0L) {
-//            updateUiState(plantDetails.copy(timePlantSeeds = FormatDateUseCase().getDateNowMillis()))
-//            FormatDateUseCase().getDateNowString()
-//        } else {
-//            FormatDateUseCase().getDateSet(plantUiState.plantDetails)
-//        }
-
     }
 
 
@@ -164,6 +165,6 @@ data class PlantEditUiState(
     val isEntryValid: Boolean = true,
     val openDialogCalendar: Boolean = false,
     val openCameraLd: Boolean = false,
-//    val uriImgList: List<ImageUri> = listOf()
+    val showCamera: Boolean = false
 )
 

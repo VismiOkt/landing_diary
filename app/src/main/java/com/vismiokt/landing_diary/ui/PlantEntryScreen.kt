@@ -80,7 +80,6 @@ import java.util.Locale
 @Composable
 fun PlantEntryScreen(
     navigateBack: () -> Unit,
-    navigateCamera: () -> Unit
 
 ) {
     val viewModel: PlantEntryViewModel = viewModel(factory = AppViewModelProvider.Factory)
@@ -111,10 +110,11 @@ fun PlantEntryScreen(
                 }
             },
             setDate = viewModel::setDate,
-            requiredPermission = navigateCamera,
             saveImgUri = viewModel::addImageUri,
             imageUriList = viewModel.uriImgList,
             onDeleteUri = { viewModel.deleteImageUri(it) },
+            closeCamera = viewModel::closeCamera,
+            openCamera = viewModel::openCamera,
             modifier = Modifier
                 .verticalScroll(rememberScrollState())
                 .padding(
@@ -127,6 +127,7 @@ fun PlantEntryScreen(
     }
 }
 
+@SuppressLint("UnrememberedMutableState")
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -138,14 +139,17 @@ fun PlantEntryBody(
     onSave: () -> Unit,
     setDate: (PlantDetails) -> String,
     imageUriList: Flow<List<Uri>>,
-    requiredPermission: () -> Unit,
     saveImgUri: (Uri) -> Unit,
     onDeleteUri: (Uri) -> Unit,
+    closeCamera: () -> Unit,
+    openCamera: () -> Unit,
     modifier: Modifier
 ) {
 
     val plantDetails = plantUiState.plantDetails
-
+    if (plantUiState.showCamera) {
+        RequiredPermission (navigateBack = { closeCamera() }, saveImg = saveImgUri )
+    }
     if (plantUiState.openDialogCalendar) {
         val datePickerState = rememberDatePickerState()
         DatePickerDialog(
@@ -337,7 +341,7 @@ fun PlantEntryBody(
 
         Button(
             onClick = {
-                requiredPermission()
+                openCamera()
 
             },
             modifier = Modifier
@@ -346,6 +350,7 @@ fun PlantEntryBody(
         ) {
             Text(text = stringResource(R.string.entry_plant_make_photo))
         }
+
 
 
         Button(
