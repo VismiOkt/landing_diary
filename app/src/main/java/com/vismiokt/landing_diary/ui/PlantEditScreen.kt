@@ -96,7 +96,7 @@ fun PlantEditScreen(
             closeDatePickerDialog = viewModel::closeDatePickerDialog,
             openDatePickerDialog = viewModel::openDatePickerDialog,
             onSave = {
-                viewModel.savePlant(uiState.plantDetails)
+                viewModel.savePlant(uiState.plantDetails, context)
                 if (viewModel.plantUiState.isEntryValid) {
                     navigateToPlantDetails(uiState.plantDetails.id)
                 } else {

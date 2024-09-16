@@ -1,5 +1,8 @@
 package com.vismiokt.landing_diary.ui
 
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -17,6 +20,7 @@ import com.vismiokt.landing_diary.domain.FormatDateUseCase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import java.io.File
 import java.time.LocalDate
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -54,9 +58,12 @@ class PlantEntryViewModel(private val repository: PlantsRepository) : ViewModel(
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun savePlant() {
+    fun savePlant(context: Context) {
         var id = 0L
         if (plantUiState.isEntryValid) {
+//            _uriImgList.value.forEach {
+//                saveImageToInternalStorage(context, it)
+//            }
             viewModelScope.launch {
                 id = repository.insertPlant(plantUiState.plantDetails.toPlant())
                 repository.addImageUriList(_uriImgList.value.map {
@@ -69,6 +76,26 @@ class PlantEntryViewModel(private val repository: PlantsRepository) : ViewModel(
             }
         }
     }
+
+//    fun copyImgInFile() {
+//        val name = FormatDateUseCase().getDateNowForName()
+//        val imgFile = File("Pictures/Landing_diary-Image/$name")
+//        var imgBitmap: Bitmap? = null
+//        if (imgFile.exists()) {
+//            imgBitmap = BitmapFactory.decodeFile(imgFile.absolutePath)
+//        }
+//    }
+
+//    fun saveImageToInternalStorage(context: Context, uri: Uri) {
+//        val name = FormatDateUseCase().getDateNowForName()
+//        val inputStream = context.contentResolver.openInputStream(uri)
+//        val outputStream = context.openFileOutput(name, Context.MODE_PRIVATE)
+//        inputStream?.use { input ->
+//            outputStream.use { output ->
+//                input.copyTo(output)
+//            }
+//        }
+//    }
 
     fun closeDatePickerDialog() {
         plantUiState = plantUiState.copy(openDialogCalendar = false)

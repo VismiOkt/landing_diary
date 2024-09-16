@@ -102,7 +102,7 @@ fun PlantEntryScreen(
             closeDatePickerDialog = viewModel::closeDatePickerDialog,
             openDatePickerDialog = viewModel::openDatePickerDialog,
             onSave = {
-                viewModel.savePlant()
+                viewModel.savePlant(context)
                 if (viewModel.plantUiState.isEntryValid) {
                     navigateBack()
                 } else {
