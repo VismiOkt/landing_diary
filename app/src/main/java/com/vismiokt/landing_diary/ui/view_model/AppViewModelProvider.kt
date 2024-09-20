@@ -1,6 +1,8 @@
-package com.vismiokt.landing_diary.ui
+package com.vismiokt.landing_diary.ui.view_model
 
 import android.app.Application
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.CreationExtras
@@ -9,6 +11,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.vismiokt.landing_diary.LdApplication
 
 object AppViewModelProvider {
+    @RequiresApi(Build.VERSION_CODES.O)
     val Factory = viewModelFactory {
         initializer {
             HomeViewModel(

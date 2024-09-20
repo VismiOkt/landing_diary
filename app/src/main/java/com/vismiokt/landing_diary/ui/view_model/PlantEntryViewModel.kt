@@ -1,8 +1,6 @@
-package com.vismiokt.landing_diary.ui
+package com.vismiokt.landing_diary.ui.view_model
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -20,7 +18,6 @@ import com.vismiokt.landing_diary.domain.FormatDateUseCase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-import java.io.File
 import java.time.LocalDate
 
 @RequiresApi(Build.VERSION_CODES.O)

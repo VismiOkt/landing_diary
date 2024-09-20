@@ -1,6 +1,5 @@
-package com.vismiokt.landing_diary.ui
+package com.vismiokt.landing_diary.ui.view_model
 
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -8,20 +7,12 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.vismiokt.landing_diary.data.CategoryPlant
-import com.vismiokt.landing_diary.data.FilterPlant
 import com.vismiokt.landing_diary.data.Plant
 import com.vismiokt.landing_diary.data.PlantsRepository
 import com.vismiokt.landing_diary.data.ResultPlant
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 
 

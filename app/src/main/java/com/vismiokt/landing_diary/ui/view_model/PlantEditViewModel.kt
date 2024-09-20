@@ -1,18 +1,12 @@
-package com.vismiokt.landing_diary.ui
+package com.vismiokt.landing_diary.ui.view_model
 
-import android.annotation.SuppressLint
-import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
 import android.os.Build
-import android.os.Environment
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.core.content.PackageManagerCompat.LOG_TAG
-import androidx.core.net.toFile
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -26,7 +20,6 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import java.io.File
 
 class PlantEditViewModel (private val repository: PlantsRepository,
                           savedStateHandle: SavedStateHandle

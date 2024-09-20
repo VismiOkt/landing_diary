@@ -2,7 +2,7 @@ package com.vismiokt.landing_diary.domain
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import com.vismiokt.landing_diary.ui.PlantDetails
+import com.vismiokt.landing_diary.ui.view_model.PlantDetails
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
