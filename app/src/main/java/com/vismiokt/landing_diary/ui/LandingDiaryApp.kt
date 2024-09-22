@@ -21,6 +21,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Menu
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -74,6 +75,7 @@ fun LandingDiaryApp() {
 @Composable
 fun LdTopAppBar(
     @StringRes title: Int,
+    onSearch: () -> Unit,
     drawerState: DrawerState
 
 ) {
@@ -89,6 +91,12 @@ fun LdTopAppBar(
                 }
             }) {
                 Icon(Icons.Outlined.Menu, contentDescription = null)
+            }
+        },
+        actions = {
+            IconButton(onClick = { onSearch() }) {
+                Icon(Icons.Outlined.Search, contentDescription = null)
+
             }
         },
         modifier = Modifier.fillMaxWidth()
