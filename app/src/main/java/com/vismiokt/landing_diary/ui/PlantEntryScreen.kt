@@ -50,8 +50,8 @@ import com.vismiokt.landing_diary.R
 import com.vismiokt.landing_diary.data.CategoryPlant
 import com.vismiokt.landing_diary.data.ResultPlant
 import com.vismiokt.landing_diary.domain.FormatDateUseCase
+import com.vismiokt.landing_diary.domain.PlantDetails
 import com.vismiokt.landing_diary.ui.view_model.AppViewModelProvider
-import com.vismiokt.landing_diary.ui.view_model.PlantDetails
 import com.vismiokt.landing_diary.ui.view_model.PlantEntryUiState
 import com.vismiokt.landing_diary.ui.view_model.PlantEntryViewModel
 import kotlinx.coroutines.flow.Flow

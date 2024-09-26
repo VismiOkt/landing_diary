@@ -61,12 +61,59 @@ fun LandingDiaryApp() {
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheet {
-                ModalNavigationApp()
+                ModalNavigationApp(
+                    navigateToAboutApp = {}
+                )
             }
         },
     ) {
         LdNavigation(drawerState = drawerState)
     }
+
+}
+
+@Composable
+fun ModalNavigationApp(
+    navigateToAboutApp: () -> Unit
+) {
+    Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+        Image(
+            painter = painterResource(R.drawable.landing_diary),
+            contentDescription = null,
+            modifier = Modifier
+                .size(150.dp)
+                .clip(shape = RoundedCornerShape(50))
+        )
+        HorizontalDivider()
+        CategoryPlant.entries.forEach {
+            NavigationDrawerItem(
+                label = {
+                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(8.dp)) {
+                        Image(
+                            painter = painterResource(it.icon),
+                            contentDescription = null,
+                            modifier = Modifier.clip(
+                                CircleShape
+                            )
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(text = stringResource(it.title), modifier = Modifier)
+                    }
+                },
+                selected = false,
+                onClick = { /*TODO*/ }
+            )
+        }
+        HorizontalDivider()
+        Row (modifier = Modifier.clickable {
+            navigateToAboutApp()
+        }) {
+            Icon(Icons.Outlined.Info, contentDescription = stringResource(R.string.menu_about_app))
+            Text(text = stringResource(R.string.menu_about_app))
+        }
+
+    }
+
 
 }
 
@@ -161,45 +208,3 @@ fun TopBar(
     )
 }
 
-@Composable
-fun ModalNavigationApp() {
-    Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-        Image(
-            painter = painterResource(R.drawable.landing_diary),
-            contentDescription = null,
-            modifier = Modifier
-                .size(150.dp)
-                .clip(shape = RoundedCornerShape(50))
-        )
-        HorizontalDivider()
-        CategoryPlant.entries.forEach {
-            NavigationDrawerItem(
-                label = {
-                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(8.dp)) {
-                        Image(
-                            painter = painterResource(it.icon),
-                            contentDescription = null,
-                            modifier = Modifier.clip(
-                                CircleShape
-                            )
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(text = stringResource(it.title), modifier = Modifier)
-                    }
-                },
-                selected = false,
-                onClick = { /*TODO*/ }
-            )
-        }
-        HorizontalDivider()
-        Row (modifier = Modifier.clickable {
-
-        }) {
-            Icon(Icons.Outlined.Info, contentDescription = stringResource(R.string.menu_about_app))
-            Text(text = stringResource(R.string.menu_about_app))
-        }
-
-    }
-
-
-}

@@ -37,6 +37,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -61,6 +62,7 @@ import coil.request.ImageRequest
 import com.vismiokt.landing_diary.R
 import com.vismiokt.landing_diary.data.ResultPlant
 import com.vismiokt.landing_diary.domain.FormatDateUseCase
+import com.vismiokt.landing_diary.domain.PlantDetails
 import com.vismiokt.landing_diary.ui.view_model.AppViewModelProvider
 import com.vismiokt.landing_diary.ui.view_model.PlantCardViewModel
 import kotlinx.coroutines.launch
@@ -74,12 +76,14 @@ fun PlantCard(
     viewModel: PlantCardViewModel = viewModel(factory = AppViewModelProvider.Factory),
     navigateBack: () -> Unit
 ) {
-    val uiState = viewModel.plantUiState
+    val uiState = viewModel.plantUiState.collectAsState()
+    val plantDetails = uiState.value.plantDetails.collectAsState(PlantDetails())
+    val imageUriList =  uiState.value.imageUriList.collectAsState(listOf())
 
     Scaffold(
         topBar = {
             TopBar(
-                uiState.plantDetails.nameVariety,
+                plantDetails.value.nameVariety,
                 actionIcon = Icons.Outlined.Delete,
                 onActionIcon = {
                     viewModel.openDeleteDialog()
@@ -90,19 +94,19 @@ fun PlantCard(
 
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { navigateToEditPlant(uiState.plantDetails.id) }) {
+            FloatingActionButton(onClick = { navigateToEditPlant(plantDetails.value.id) }) {
                 Icon(Icons.Outlined.Create, contentDescription = null)
             }
 
 
         }
     ) { padding ->
-        if (uiState.openDeleteDialog) {
+        if (uiState.value.openDeleteDialog) {
             AlertDialog(
                 onDismissRequest = { viewModel.closeDeleteDialog() },
                 confirmButton = {
                     Button(onClick = {
-                        viewModel.deletePlant(uiState.plantDetails)
+                        viewModel.deletePlant(plantDetails.value)
                         navigateBack()
                     }) {
                         Text(text = stringResource(R.string.plant_card_delete_dialog_ok))
@@ -132,7 +136,7 @@ fun PlantCard(
                 Row {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Image(
-                            painter = painterResource(uiState.plantDetails.category.icon),
+                            painter = painterResource(plantDetails.value.category.icon),
                             contentDescription = null,
                             alignment = Alignment.Center,
                             modifier = Modifier
@@ -142,7 +146,7 @@ fun PlantCard(
                                 .size(70.dp)
                         )
                         Text(
-                            text = stringResource(uiState.plantDetails.category.title),
+                            text = stringResource(plantDetails.value.category.title),
                             textAlign = TextAlign.Center,
                             modifier = Modifier
                                 //        .size(100.dp)
@@ -155,7 +159,7 @@ fun PlantCard(
                     ) {
                         Text(text = stringResource(R.string.plant_card_time_plant_seeds_input))
                         Text(
-                            text = FormatDateUseCase().getDateSet(uiState.plantDetails),
+                            text = FormatDateUseCase().getDateSet(plantDetails.value),
                             textAlign = TextAlign.Center,
                             //  style = MaterialTheme.typography.titleLarge,
 //                        modifier = Modifier
@@ -167,7 +171,7 @@ fun PlantCard(
                             Text(text = ": ")
                         }
                         Row {
-                            Text(text = uiState.plantDetails.price)
+                            Text(text = plantDetails.value.price)
                             Text(
                                 text = " " + Currency.getInstance(Locale.getDefault()).symbol,
                                 //  textAlign = TextAlign.Center
@@ -178,15 +182,15 @@ fun PlantCard(
                 HorizontalDivider()
                 Row {
                     Text(text = stringResource(R.string.entry_plant_place_of_purchase_input) + ": ")
-                    Text(text = uiState.plantDetails.placeOfPurchase)
+                    Text(text = plantDetails.value.placeOfPurchase)
                 }
 
                 Text(text = stringResource(R.string.entry_plant_note_input) + ": ")
-                Text(text = uiState.plantDetails.note)
+                Text(text = plantDetails.value.note)
                 Card(
                     colors = CardDefaults.cardColors(
                         containerColor =
-                        when (uiState.plantDetails.result) {
+                        when (plantDetails.value.result) {
                             ResultPlant.positive -> MaterialTheme.colorScheme.tertiaryContainer
                             ResultPlant.negative -> MaterialTheme.colorScheme.error
                             ResultPlant.neutral -> MaterialTheme.colorScheme.outline
@@ -198,17 +202,17 @@ fun PlantCard(
                 ) {
                     Row(modifier = Modifier.padding(8.dp)) {
                         Text(text = stringResource(R.string.entry_plant_result_input) + ": ")
-                        Text(text = stringResource(id = uiState.plantDetails.result.text))
+                        Text(text = stringResource(id = plantDetails.value.result.text))
                     }
                 }
                 Spacer(modifier = Modifier.height(16.dp))
                 ImagePreview(
-                    selectedImages = uiState.imageUriList,
+                    selectedImages = imageUriList.value,
                     onImage = { viewModel.openImageDialog(it) }
                     )
-                if (uiState.openImageDialog) {
+                if (uiState.value.openImageDialog) {
                     Dialog(onDismissRequest = { viewModel.closeImageDialog() }) {
-                        TransformableImage(uriImage = uiState.openImageUri)
+                        TransformableImage(uriImage = uiState.value.openImageUri)
 
                     }
                 }

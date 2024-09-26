@@ -1,6 +1,8 @@
 package com.vismiokt.landing_diary.ui.view_model
 
 import android.net.Uri
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -9,12 +11,24 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.vismiokt.landing_diary.data.ImageUri
 import com.vismiokt.landing_diary.data.PlantsRepository
+import com.vismiokt.landing_diary.domain.PlantDetails
+import com.vismiokt.landing_diary.domain.toPlant
+import com.vismiokt.landing_diary.domain.toPlantDetails
 import com.vismiokt.landing_diary.navigation.Screen
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+@RequiresApi(Build.VERSION_CODES.O)
 class PlantCardViewModel(
     private val repository: PlantsRepository,
     savedStateHandle: SavedStateHandle
@@ -32,23 +46,33 @@ class PlantCardViewModel(
 //                initialValue = PlantCardUiState()
 //            )
 
-    var plantUiState by mutableStateOf(PlantCardUiState())
-        private set
+    private val _plantUiState = MutableStateFlow(PlantCardUiState())
+    val plantUiState: StateFlow<PlantCardUiState> = _plantUiState.asStateFlow()
 
     init {
+        updateUiState()
+    }
+
+    private fun updateUiState() {
         viewModelScope.launch {
-            plantUiState = PlantCardUiState(
-                plantDetails = repository.getPlantStream(plantId).filterNotNull().map { it.toPlantDetails() }.first(),
-                imageUriList = imageUriListToUriList(repository.getImageUri(plantId))
-            )
+            _plantUiState.update {
+                it.copy(
+                    plantDetails = repository.getPlantStream(plantId).filterNotNull().map { plant -> plant.toPlantDetails() },
+                    imageUriList = imageUriListToUriList(repository.getImageUri(plantId))
+                )
+            }
         }
     }
 
 
-    fun imageUriListToUriList(imageUriList: List<ImageUri>): List<Uri> {
-        return imageUriList.map { it.uriImg }
+    fun imageUriListToUriList(imageUriList: Flow<List<ImageUri>>): Flow<List<Uri>> {
+        return imageUriList.map {
+            it.map { uri ->
+                uri.uriImg }
+        }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun deletePlant(plantDetails: PlantDetails) {
         viewModelScope.launch {
             repository.deletePlant(plantDetails.toPlant())
@@ -58,27 +82,33 @@ class PlantCardViewModel(
     }
 
     fun openDeleteDialog() {
-        plantUiState = plantUiState.copy(openDeleteDialog = true)
+        _plantUiState.update {
+            it.copy(openDeleteDialog = true)
+        }
     }
 
     fun closeDeleteDialog() {
-        plantUiState = plantUiState.copy(openDeleteDialog = false)
+        _plantUiState.update {
+            it.copy(openDeleteDialog = false)
+        }
     }
 
     fun openImageDialog(uri: Uri) {
-        plantUiState = plantUiState.copy(openImageDialog = true, openImageUri = uri)
+        _plantUiState.update {
+            it.copy(openImageDialog = true, openImageUri = uri)
+        }
     }
 
     fun closeImageDialog() {
-        plantUiState = plantUiState.copy(openImageDialog = false)
+        _plantUiState.update {
+            it.copy(openImageDialog = false)
+        }
     }
-
-
 }
 
-data class PlantCardUiState (
-    val plantDetails: PlantDetails = PlantDetails(),
-    val imageUriList: List<Uri> = listOf(),
+data class PlantCardUiState @RequiresApi(Build.VERSION_CODES.O) constructor(
+    val plantDetails: Flow<PlantDetails> = MutableStateFlow(PlantDetails()),
+    val imageUriList: Flow<List<Uri>> = MutableStateFlow(listOf()),
     val openDeleteDialog: Boolean = false,
     val openImageDialog: Boolean = false,
     val openImageUri: Uri = Uri.EMPTY

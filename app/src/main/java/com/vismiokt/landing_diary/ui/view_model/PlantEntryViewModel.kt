@@ -15,6 +15,8 @@ import com.vismiokt.landing_diary.data.Plant
 import com.vismiokt.landing_diary.data.PlantsRepository
 import com.vismiokt.landing_diary.data.ResultPlant
 import com.vismiokt.landing_diary.domain.FormatDateUseCase
+import com.vismiokt.landing_diary.domain.PlantDetails
+import com.vismiokt.landing_diary.domain.toPlant
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -128,42 +130,5 @@ data class PlantEntryUiState @RequiresApi(Build.VERSION_CODES.O) constructor(
     val showCamera: Boolean = false
 )
 
-data class PlantDetails @RequiresApi(Build.VERSION_CODES.O) constructor(
-    val id: Int = 0,
-    val nameVariety: String = "",
-    val category: CategoryPlant = CategoryPlant.other,
-    val timePlantSeeds: LocalDate = LocalDate.now(),
-    val dateLanding: Long = 0,
-    val price: String = "",
-    val placeOfPurchase: String = "",
-    val result: ResultPlant = ResultPlant.unknown,
-    val note: String = "",
-)
 
-@RequiresApi(Build.VERSION_CODES.O)
-fun PlantDetails.toPlant(): Plant = Plant(
-    id = id,
-    nameVariety = nameVariety,
-    category = category,
-    timePlantSeeds = timePlantSeeds,
-    dateLanding = dateLanding,
-    price = price.toFloatOrNull() ?: 0.0f,
-    placeOfPurchase = placeOfPurchase,
-    result = result,
-    note = note,
-)
-
-@RequiresApi(Build.VERSION_CODES.O)
-fun Plant.toPlantDetails(): PlantDetails = PlantDetails(
-    id = id,
-    nameVariety = nameVariety,
-    category = category,
-    timePlantSeeds = timePlantSeeds,
-    dateLanding = dateLanding,
-    price = price.toString(),
-    placeOfPurchase = placeOfPurchase,
-    result = result,
-    note = note,
-
-)
 

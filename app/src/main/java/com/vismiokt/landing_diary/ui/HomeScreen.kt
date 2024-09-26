@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.ArrowDropDown
@@ -28,11 +29,14 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SearchBar
-import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -48,6 +52,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.vismiokt.landing_diary.R
 import com.vismiokt.landing_diary.data.CategoryPlant
 import com.vismiokt.landing_diary.data.FilterPlant
+import com.vismiokt.landing_diary.data.Plant
 import com.vismiokt.landing_diary.data.ResultPlant
 import com.vismiokt.landing_diary.ui.view_model.AppViewModelProvider
 import com.vismiokt.landing_diary.ui.view_model.HomeUiState
@@ -55,7 +60,6 @@ import com.vismiokt.landing_diary.ui.view_model.HomeViewModel
 
 @SuppressLint("StateFlowValueCalledInComposition")
 @RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     drawerState: DrawerState,
@@ -64,27 +68,19 @@ fun HomeScreen(
 
 ) {
     val viewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory)
-    val uiState = viewModel.homeUiState
-    val plants = uiState.plants.collectAsState(initial = listOf())
-    val topAppBarSearch = rememberSaveable {
-        mutableStateOf(false)
-    }
-    if (topAppBarSearch.value) {
+    val uiState = viewModel.homeUiState.collectAsState()
+    val plants = viewModel.resPlants.collectAsState(initial = listOf<Plant>())
+    val searchText = viewModel.searchText.collectAsState("")
+    val isSearching = viewModel.isSearching.collectAsState()
 
-    }
+
     Scaffold(
         topBar = {
             LdTopAppBar(
                 R.string.app_name_ru,
-                onSearch = {},
-                drawerState)
-//             {
-//                scope.launch {
-//                    drawerState.apply {
-//                        if (isClosed) open() else close()
-//                    }
-//                }
-//            }
+                onSearch = { viewModel.onSearchBar() },
+                drawerState
+            )
         },
         floatingActionButton = {
             FloatingActionButton(onClick = navigateToPlantEntry) {
@@ -92,10 +88,25 @@ fun HomeScreen(
             }
         }
     ) { padding ->
-        Column {
+        Column (
+            modifier = Modifier
+                .padding(
+                    start = padding.calculateStartPadding(LocalLayoutDirection.current),
+                    end = padding.calculateEndPadding(LocalLayoutDirection.current),
+                    top = padding.calculateTopPadding()
+                )
+        ) {
+            if (uiState.value.showBarSearch) {
+                TopAppBarSearch(
+                    searchText = searchText,
+                    onSearchTextChange = viewModel::onSearchTextChange,
+                    onClearSearchText = viewModel::onClearSearchText,
+
+                )
+            }
             FilterAppBar(
                 uiState,
-                padding,
+                plantsYear = viewModel.plantsYear.collectAsState(listOf()),
                 onClickValueResult = { viewModel.onClickValueResult(it) },
                 onClickValueCategory = { viewModel.onClickValueCategory(it) },
                 deleteFilterCategory = { viewModel.deleteFilterCategory() },
@@ -103,7 +114,7 @@ fun HomeScreen(
                 deleteFilterYear = { viewModel.deleteFilterYear() },
                 onClickValueYear = { viewModel.onClickValueYear(it) }
             )
-            if (plants.value.isEmpty() && !uiState.onFilterYear && !uiState.onFilterResult && !uiState.onFilterCategory) {
+            if (plants.value.isEmpty() && !uiState.value.onFilterYear && !uiState.value.onFilterResult && !uiState.value.onFilterCategory && searchText.value.isBlank()) {
                 Text(
                     text = stringResource(R.string.app_no_plant_description),
                     textAlign = TextAlign.Center,
@@ -115,11 +126,6 @@ fun HomeScreen(
             } else {
                 LazyColumn(
                     modifier = Modifier
-//                    .padding(
-//                        start = padding.calculateStartPadding(LocalLayoutDirection.current),
-//                        end = padding.calculateEndPadding(LocalLayoutDirection.current),
-//                        top = padding.calculateTopPadding()
-//                    )
                         .fillMaxWidth()
                         .padding(8.dp)
                 ) {
@@ -137,8 +143,8 @@ fun HomeScreen(
 
 @Composable
 fun FilterAppBar(
-    uiState: HomeUiState,
-    padding: PaddingValues,
+    uiState: State<HomeUiState>,
+    plantsYear: State<List<String>>,
     onClickValueCategory: (CategoryPlant) -> Unit,
     onClickValueResult: (ResultPlant) -> Unit,
     onClickValueYear: (String) -> Unit,
@@ -146,15 +152,10 @@ fun FilterAppBar(
     deleteFilterResult: () -> Unit,
     deleteFilterYear: () -> Unit
 ) {
-    val plantsYear = uiState.plantsYear.collectAsState(initial = listOf())
+
     val state = rememberScrollState()
     Row(
         modifier = Modifier
-            .padding(
-                start = padding.calculateStartPadding(LocalLayoutDirection.current),
-                end = padding.calculateEndPadding(LocalLayoutDirection.current),
-                top = padding.calculateTopPadding()
-            )
             .padding(start = 10.dp, end = 2.dp)
             .horizontalScroll(state),
     ) {
@@ -164,23 +165,22 @@ fun FilterAppBar(
                 FilterPlant.category -> {
                     Box {
                         FilterChip(
-                            selected = uiState.onFilterCategory,
+                            selected = uiState.value.onFilterCategory,
                             onClick = {
                                 expanded = true
                             },
                             label = {
-                                if (uiState.filterCategory == null) {
-                                    Text(stringResource(it.title))
-                                } else {
-                                    Text(text = stringResource(uiState.filterCategory.title))
-                                }
+                                Text(text = stringResource(uiState.value.filterCategory?.title ?: it.title))
                             },
                             trailingIcon = {
                                 Icon(Icons.Outlined.ArrowDropDown, contentDescription = null)
                             },
                             leadingIcon = {
-                                if (uiState.onFilterCategory) {
-                                    IconButton(onClick = { deleteFilterCategory() }, modifier = Modifier.size(16.dp)) {
+                                if (uiState.value.onFilterCategory) {
+                                    IconButton(
+                                        onClick = { deleteFilterCategory() },
+                                        modifier = Modifier.size(16.dp)
+                                    ) {
                                         Icon(
                                             Icons.Outlined.Clear,
                                             contentDescription = null,
@@ -212,24 +212,22 @@ fun FilterAppBar(
                 FilterPlant.result -> {
                     Box {
                         FilterChip(
-                            selected = uiState.onFilterResult,
+                            selected = uiState.value.onFilterResult,
                             onClick = {
                                 expanded = true
                             },
                             label = {
-                                if (uiState.filterResult == null) {
-                                    Text(stringResource(it.title))
-                                } else {
-                                    Text(text = stringResource(uiState.filterResult.text))
-                                }
-
+                                Text(text = stringResource(uiState.value.filterResult?.text ?: it.title))
                             },
                             trailingIcon = {
                                 Icon(Icons.Outlined.ArrowDropDown, contentDescription = null)
                             },
                             leadingIcon = {
-                                if (uiState.onFilterResult) {
-                                    IconButton(onClick = { deleteFilterResult() }, modifier = Modifier.size(16.dp)) {
+                                if (uiState.value.onFilterResult) {
+                                    IconButton(
+                                        onClick = { deleteFilterResult() },
+                                        modifier = Modifier.size(16.dp)
+                                    ) {
                                         Icon(
                                             Icons.Outlined.Clear,
                                             contentDescription = null,
@@ -259,23 +257,22 @@ fun FilterAppBar(
                 FilterPlant.year -> {
                     Box {
                         FilterChip(
-                            selected = uiState.onFilterYear,
+                            selected = uiState.value.onFilterYear,
                             onClick = {
                                 expanded = true
                             },
                             label = {
-                                if (uiState.filterYear == null) {
-                                    Text(stringResource(it.title))
-                                } else {
-                                    Text(text = uiState.filterYear)
-                                }
+                                Text(text = uiState.value.filterYear ?: stringResource(it.title))
                             },
                             trailingIcon = {
                                 Icon(Icons.Outlined.ArrowDropDown, contentDescription = null)
                             },
                             leadingIcon = {
-                                if (uiState.onFilterYear) {
-                                    IconButton(onClick = { deleteFilterYear() }, modifier = Modifier.size(16.dp)) {
+                                if (uiState.value.onFilterYear) {
+                                    IconButton(
+                                        onClick = { deleteFilterYear() },
+                                        modifier = Modifier.size(16.dp)
+                                    ) {
                                         Icon(
                                             Icons.Outlined.Clear,
                                             contentDescription = null,
@@ -311,41 +308,33 @@ fun FilterAppBar(
 }
 
 @Composable
-fun TopAppBarSearch() {
-    SearchBar(query = , onQueryChange = , onSearch = , active = , onActiveChange = ) {
-        
+fun TopAppBarSearch(
+    searchText: State<String>,
+    onSearchTextChange: (String) -> Unit,
+    onClearSearchText: () -> Unit,
+) {
+
+
+    Column(modifier = Modifier
+
+    ) {
+        OutlinedTextField(
+            value = searchText.value,
+            onValueChange = onSearchTextChange,
+            placeholder = {
+                Text(text = stringResource(R.string.search_bar_search))
+            },
+            trailingIcon = {
+                IconButton(onClick = { onClearSearchText() }) {
+                    Icon(Icons.Outlined.Clear, contentDescription = null)
+                }
+            },
+            shape = RoundedCornerShape(20.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 8.dp, end = 8.dp)
+        )
     }
 }
 
-//@Composable
-//fun DropdownItem(
-//    values: FilterPlant,
-//    onClickValueCategory: (CategoryPlant) -> Unit,
-//    onClickValueResult: (ResultPlant) -> Unit
-//) {
-//    when (values) {
-//        FilterPlant.category -> {
-//            CategoryPlant.entries.forEach {
-//                DropdownMenuItem(
-//                    text = { Text(text = stringResource(it.title)) },
-//                    onClick = { onClickValueCategory(it) })
-//            }
-//        }
-//
-//        FilterPlant.result -> {
-//            ResultPlant.entries.forEach {
-//                DropdownMenuItem(
-//                    text = { Text(text = stringResource(it.text)) },
-//                    onClick = { onClickValueResult(it) })
-//            }
-//        }
-//
-//        FilterPlant.year -> {
-//
-//
-//        }
-//
-//    }
-//
-//}
 

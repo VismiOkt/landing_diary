@@ -10,6 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.vismiokt.landing_diary.ui.AboutApp
 import com.vismiokt.landing_diary.ui.RequiredPermission
 import com.vismiokt.landing_diary.ui.HomeScreen
 import com.vismiokt.landing_diary.ui.PlantCard
@@ -21,7 +22,8 @@ import com.vismiokt.landing_diary.ui.PlantEntryScreen
 @Composable
 fun LdNavigation(
     navController: NavHostController = rememberNavController(),
-    drawerState: DrawerState
+    drawerState: DrawerState,
+
 
 ) {
     NavHost(navController = navController, startDestination = Screen.HomeDestination.route) {
@@ -40,7 +42,8 @@ fun LdNavigation(
         ) {
             PlantCard(
                 navigateToEditPlant = { navController.navigate("${Screen.PlantEditDestination.route}/${it}") },
-                navigateBack = { navController.navigate(Screen.HomeDestination.route) }
+                navigateBack = { navController.navigateUp() }
+                //{ navController.navigate(Screen.HomeDestination.route) }
             )
         }
         composable(route = Screen.PlantEntryDestination.route) {
@@ -55,9 +58,16 @@ fun LdNavigation(
         ) {
             PlantEditScreen(
                 navigateBack = { navController.navigateUp() },
-                navigateToPlantDetails = { navController.navigate("${Screen.PlantCardDestination.route}/${it}") }
+                navigateToPlantDetails = { navController.navigateUp() }
+            //    { navController.navigate("${Screen.PlantCardDestination.route}/${it}") }
             )
         }
+        composable(route = Screen.AboutAppDestination.route) {
+            AboutApp(
+                navigateBack = { navController.navigateUp() }
+            )
+        }
+
     }
 
 

@@ -1,146 +1,236 @@
 package com.vismiokt.landing_diary.ui.view_model
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.lifecycle.SavedStateHandle
+import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.vismiokt.landing_diary.data.CategoryPlant
 import com.vismiokt.landing_diary.data.Plant
 import com.vismiokt.landing_diary.data.PlantsRepository
 import com.vismiokt.landing_diary.data.ResultPlant
+import com.vismiokt.landing_diary.domain.doesMatchSearchQuery
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.last
+import kotlinx.coroutines.flow.lastOrNull
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.single
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 
 class HomeViewModel(
-    private val plantsRepository: PlantsRepository,
-    savedStateHandle: SavedStateHandle
+    private val plantsRepository: PlantsRepository
 ) : ViewModel() {
-    //   val plants: List<Plant> = listOf(Plant(1, "tutu"))
 
-//    val homeUiState: StateFlow<HomeUiState> = plantsRepository.getAllPlants().map { HomeUiState(it) }.stateIn(
-//        scope = viewModelScope,
-//        started = SharingStarted.WhileSubscribed(5_000L),
-//        initialValue = HomeUiState()
-//    )
-    //   val homeUiState: StateFlow<HomeUiState> = _homeUiState.asStateFlow()
+    private val _homeUiState = MutableStateFlow(HomeUiState())
+    val homeUiState: StateFlow<HomeUiState> = _homeUiState.asStateFlow()
 
-    var homeUiState by mutableStateOf(HomeUiState())
-        private set
+    private val _searchText = MutableStateFlow("")
+    val searchText = _searchText.asStateFlow()
+
+    private val _plants = MutableStateFlow(listOf<Plant>())
+    private val plants = _plants.asStateFlow()
+
+    private val _isSearching = MutableStateFlow(false)
+    val isSearching = _isSearching.asStateFlow()
+
+    private val _resPlants = MutableStateFlow(listOf<Plant>())
+    val resPlants = _resPlants.asStateFlow()
+
+    private val _plantsYear = MutableStateFlow(listOf<String>())
+    val plantsYear = _plantsYear.asStateFlow()
 
     init {
         viewModelScope.launch {
-            homeUiState = HomeUiState(
-                plants = plantsRepository.getAllPlants(),
-                plantsYear = plantsRepository.getPlantsDate()
-                    .map { it.map { date -> date.substring(0, 4) }.distinct() }
-            )
+            plantsRepository.getPlantsDate().map { list ->
+                list.map { date -> date.substring(0, 4) }.distinct()
+            }.collect {
+                _plantsYear.value = it
+            }
+
+        }
+        viewModelScope.launch {
+            plantsRepository.getAllPlants().collect {
+                _plants.value = it
+            }
+        }
+        searchText.combine(plants) { text, plants ->
+            _resPlants.value = plants.filter {
+                it.doesMatchSearchQuery(text)
+            }
+        }.launchIn(viewModelScope)
+    }
+
+
+    fun onSearchTextChange(text: String) {
+        _searchText.value = text
+    }
+
+    fun onClearSearchText() {
+        if (_searchText.value.isBlank()) {
+            _homeUiState.update {
+                it.copy(showBarSearch = false)
+            }
+        } else {
+            _searchText.value = ""
         }
     }
 
+    fun onSearchBar() {
+        _homeUiState.update {
+            it.copy(showBarSearch = !homeUiState.value.showBarSearch)
+        }
+        _searchText.value = ""
+    }
+
     fun onClickValueResult(result: ResultPlant) {
-        homeUiState = homeUiState.copy(
-            onFilterResult = true,
-            filterResult = result,
-            plants = if (homeUiState.onFilterCategory && homeUiState.onFilterYear) plantsRepository.getPlantsByResultAndCategoryAndYear(
-                result, homeUiState.filterCategory!!, homeUiState.filterYear!!
-            ) else if (homeUiState.onFilterCategory && !homeUiState.onFilterYear) plantsRepository.getPlantsByResultAndCategory(
-                result, homeUiState.filterCategory!!
-            ) else if (!homeUiState.onFilterCategory && homeUiState.onFilterYear) plantsRepository.getPlantsByResultAndYear(
-                result, homeUiState.filterYear!!
+        viewModelScope.launch {
+            if (homeUiState.value.onFilterCategory && homeUiState.value.onFilterYear) plantsRepository.getPlantsByResultAndCategoryAndYear(
+                result, homeUiState.value.filterCategory!!, homeUiState.value.filterYear!!
+            ) else if (homeUiState.value.onFilterCategory && !homeUiState.value.onFilterYear) plantsRepository.getPlantsByResultAndCategory(
+                result, homeUiState.value.filterCategory!!
+            ) else if (!homeUiState.value.onFilterCategory && homeUiState.value.onFilterYear) plantsRepository.getPlantsByResultAndYear(
+                result, homeUiState.value.filterYear!!
             ) else plantsRepository.getPlantsByResult(result)
-        )
+                .collect {
+                    _plants.value = it
+                }
+        }
+
+        _homeUiState.update {
+            it.copy(
+                onFilterResult = true,
+                filterResult = result,
+            )
+        }
 
     }
 
     fun onClickValueCategory(category: CategoryPlant) {
-        homeUiState = homeUiState.copy(
-            onFilterCategory = true,
-            filterCategory = category,
-            plants = if (homeUiState.onFilterResult && homeUiState.onFilterYear) plantsRepository.getPlantsByResultAndCategoryAndYear(
-                homeUiState.filterResult!!, category, homeUiState.filterYear!!
-            ) else if (homeUiState.onFilterResult && !homeUiState.onFilterYear) plantsRepository.getPlantsByResultAndCategory(
-                homeUiState.filterResult!!,
+        viewModelScope.launch {
+            if (homeUiState.value.onFilterResult && homeUiState.value.onFilterYear) plantsRepository.getPlantsByResultAndCategoryAndYear(
+                homeUiState.value.filterResult!!, category, homeUiState.value.filterYear!!
+            ) else if (homeUiState.value.onFilterResult && !homeUiState.value.onFilterYear) plantsRepository.getPlantsByResultAndCategory(
+                homeUiState.value.filterResult!!,
                 category
-            ) else if (!homeUiState.onFilterResult && homeUiState.onFilterYear) plantsRepository.getPlantsByCategoryAndYear(
-                category, homeUiState.filterYear!!
+            ) else if (!homeUiState.value.onFilterResult && homeUiState.value.onFilterYear) plantsRepository.getPlantsByCategoryAndYear(
+                category, homeUiState.value.filterYear!!
             ) else plantsRepository.getPlantsByCategory(category)
-        )
+                .collect {
+                    _plants.value = it
+                }
+        }
+        _homeUiState.update {
+            it.copy(
+                onFilterCategory = true,
+                filterCategory = category,
+            )
+        }
 
     }
 
     fun onClickValueYear(year: String) {
-        homeUiState = homeUiState.copy(
-            onFilterYear = true,
-            filterYear = year,
-            plants = if (homeUiState.onFilterCategory && homeUiState.onFilterResult) plantsRepository.getPlantsByResultAndCategoryAndYear(
-                homeUiState.filterResult!!, homeUiState.filterCategory!!, year
-            ) else if (homeUiState.onFilterCategory && !homeUiState.onFilterResult) plantsRepository.getPlantsByCategoryAndYear(
-                homeUiState.filterCategory!!, year
-            ) else if (!homeUiState.onFilterCategory && homeUiState.onFilterResult) plantsRepository.getPlantsByResultAndYear(
-                homeUiState.filterResult!!, year
+        viewModelScope.launch {
+            if (homeUiState.value.onFilterCategory && homeUiState.value.onFilterResult) plantsRepository.getPlantsByResultAndCategoryAndYear(
+                homeUiState.value.filterResult!!, homeUiState.value.filterCategory!!, year
+            ) else if (homeUiState.value.onFilterCategory && !homeUiState.value.onFilterResult) plantsRepository.getPlantsByCategoryAndYear(
+                homeUiState.value.filterCategory!!, year
+            ) else if (!homeUiState.value.onFilterCategory && homeUiState.value.onFilterResult) plantsRepository.getPlantsByResultAndYear(
+                homeUiState.value.filterResult!!, year
             ) else plantsRepository.getPlantsByYear(year)
-        )
+                .collect {
+                    _plants.value = it
+                }
+        }
+        _homeUiState.update {
+            it.copy(
+                onFilterYear = true,
+                filterYear = year,
+            )
+        }
 
     }
 
     fun deleteFilterCategory() {
-        homeUiState = homeUiState.copy(
-            onFilterCategory = false,
-            filterCategory = null,
-
-            plants = if (homeUiState.onFilterResult && homeUiState.onFilterYear) plantsRepository.getPlantsByResultAndYear(
-                homeUiState.filterResult!!, homeUiState.filterYear!!
-            ) else if (homeUiState.onFilterResult && !homeUiState.onFilterYear) plantsRepository.getPlantsByResult(
-                homeUiState.filterResult!!
-            ) else if (!homeUiState.onFilterResult && homeUiState.onFilterYear) plantsRepository.getPlantsByYear(
-                homeUiState.filterYear!!
+        viewModelScope.launch {
+            if (homeUiState.value.onFilterResult && homeUiState.value.onFilterYear) plantsRepository.getPlantsByResultAndYear(
+                homeUiState.value.filterResult!!, homeUiState.value.filterYear!!
+            ) else if (homeUiState.value.onFilterResult && !homeUiState.value.onFilterYear) plantsRepository.getPlantsByResult(
+                homeUiState.value.filterResult!!
+            ) else if (!homeUiState.value.onFilterResult && homeUiState.value.onFilterYear) plantsRepository.getPlantsByYear(
+                homeUiState.value.filterYear!!
             ) else plantsRepository.getAllPlants()
-        )
+                .collect {
+                    _plants.value = it
+                }
+        }
+        _homeUiState.update {
+            it.copy(
+                onFilterCategory = false,
+                filterCategory = null,
+            )
+        }
     }
 
     fun deleteFilterResult() {
-        homeUiState = homeUiState.copy(
-            onFilterResult = false,
-            filterResult = null,
-            plants = if (homeUiState.onFilterCategory && homeUiState.onFilterYear) plantsRepository.getPlantsByCategoryAndYear(
-                homeUiState.filterCategory!!, homeUiState.filterYear!!
-            ) else if (homeUiState.onFilterCategory && !homeUiState.onFilterYear) plantsRepository.getPlantsByCategory(
-                homeUiState.filterCategory!!
-            ) else if (!homeUiState.onFilterCategory && homeUiState.onFilterYear) plantsRepository.getPlantsByYear(
-                homeUiState.filterYear!!
+        viewModelScope.launch {
+            if (homeUiState.value.onFilterCategory && homeUiState.value.onFilterYear) plantsRepository.getPlantsByCategoryAndYear(
+                homeUiState.value.filterCategory!!, homeUiState.value.filterYear!!
+            ) else if (homeUiState.value.onFilterCategory && !homeUiState.value.onFilterYear) plantsRepository.getPlantsByCategory(
+                homeUiState.value.filterCategory!!
+            ) else if (!homeUiState.value.onFilterCategory && homeUiState.value.onFilterYear) plantsRepository.getPlantsByYear(
+                homeUiState.value.filterYear!!
             ) else plantsRepository.getAllPlants()
-        )
+                .collect {
+                    _plants.value = it
+                }
+        }
+        _homeUiState.update {
+            it.copy(
+                onFilterResult = false,
+                filterResult = null,
+            )
+        }
     }
 
     fun deleteFilterYear() {
-        homeUiState = homeUiState.copy(
-            onFilterYear = false,
-            filterYear = null,
-            plants = if (homeUiState.onFilterCategory && homeUiState.onFilterResult) plantsRepository.getPlantsByResultAndCategory(
-                homeUiState.filterResult!!, homeUiState.filterCategory!!
-            ) else if (homeUiState.onFilterCategory && !homeUiState.onFilterResult) plantsRepository.getPlantsByCategory(
-                homeUiState.filterCategory!!
-            ) else if (!homeUiState.onFilterCategory && homeUiState.onFilterResult) plantsRepository.getPlantsByResult(
-                homeUiState.filterResult!!
+        viewModelScope.launch {
+            if (homeUiState.value.onFilterCategory && homeUiState.value.onFilterResult) plantsRepository.getPlantsByResultAndCategory(
+                homeUiState.value.filterResult!!, homeUiState.value.filterCategory!!
+            ) else if (homeUiState.value.onFilterCategory && !homeUiState.value.onFilterResult) plantsRepository.getPlantsByCategory(
+                homeUiState.value.filterCategory!!
+            ) else if (!homeUiState.value.onFilterCategory && homeUiState.value.onFilterResult) plantsRepository.getPlantsByResult(
+                homeUiState.value.filterResult!!
             ) else plantsRepository.getAllPlants()
-        )
+                .collect {
+                    _plants.value = it
+                }
+        }
+        _homeUiState.update {
+            it.copy(
+                onFilterYear = false,
+                filterYear = null,
+            )
+        }
     }
 
 
 }
 
 data class HomeUiState(
-    val plants: Flow<List<Plant>> = MutableStateFlow(listOf()),
     val onFilterCategory: Boolean = false,
     val onFilterResult: Boolean = false,
     val onFilterYear: Boolean = false,
     val filterResult: ResultPlant? = null,
     val filterCategory: CategoryPlant? = null,
     val filterYear: String? = null,
-    val plantsYear: Flow<List<String>> = MutableStateFlow(listOf())
+    val showBarSearch: Boolean = false
 )

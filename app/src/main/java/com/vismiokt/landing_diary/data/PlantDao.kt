@@ -29,7 +29,7 @@ interface PlantDao {
     fun getPlant(id: Int): Flow<Plant>
 
     @Query("SELECT * FROM uri_Image WHERE plantId=:plantId")
-    suspend fun getImageUri(plantId: Int): List<ImageUri>
+    fun getImageUri(plantId: Int): Flow<List<ImageUri>>
 
     @Insert
     suspend fun addImageUriList(imageUriList: List<ImageUri>)

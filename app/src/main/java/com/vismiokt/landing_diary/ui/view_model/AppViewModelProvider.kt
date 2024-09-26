@@ -15,8 +15,7 @@ object AppViewModelProvider {
     val Factory = viewModelFactory {
         initializer {
             HomeViewModel(
-                ldApplication().container.plantsRepository,
-                this.createSavedStateHandle()
+                ldApplication().container.plantsRepository
             )
         }
         initializer {

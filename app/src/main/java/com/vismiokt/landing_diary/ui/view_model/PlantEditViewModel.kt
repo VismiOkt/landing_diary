@@ -13,14 +13,19 @@ import androidx.lifecycle.viewModelScope
 import com.vismiokt.landing_diary.data.ImageUri
 import com.vismiokt.landing_diary.data.PlantsRepository
 import com.vismiokt.landing_diary.domain.FormatDateUseCase
+import com.vismiokt.landing_diary.domain.PlantDetails
+import com.vismiokt.landing_diary.domain.toPlant
+import com.vismiokt.landing_diary.domain.toPlantDetails
 import com.vismiokt.landing_diary.navigation.Screen
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
+@RequiresApi(Build.VERSION_CODES.O)
 class PlantEditViewModel (private val repository: PlantsRepository,
                           savedStateHandle: SavedStateHandle
 ) : ViewModel() {
@@ -63,9 +68,16 @@ class PlantEditViewModel (private val repository: PlantsRepository,
         }
     }
 
-    fun imageUriListToUriList(imageUriList: List<ImageUri>): List<Uri> {
-        return imageUriList.map { it.uriImg }
+    suspend fun imageUriListToUriList(imageUriList: Flow<List<ImageUri>>): List<Uri> {
+        return imageUriList.map {
+            it.map { uri ->
+                uri.uriImg }
+        }.stateIn(viewModelScope).value
     }
+
+//    fun imageUriListToUriList(imageUriList: List<ImageUri>): List<Uri> {
+//        return imageUriList.map { it.uriImg }
+//    }
 
 
 
@@ -73,6 +85,7 @@ class PlantEditViewModel (private val repository: PlantsRepository,
         return plantDetails.nameVariety.isNotBlank()
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun updateUiState(plantDetails: PlantDetails) {
         plantUiState = PlantEditUiState(
             plantDetails = plantDetails,
@@ -191,7 +204,7 @@ class PlantEditViewModel (private val repository: PlantsRepository,
 
 }
 
-data class PlantEditUiState(
+data class PlantEditUiState @RequiresApi(Build.VERSION_CODES.O) constructor(
     val plantDetails: PlantDetails = PlantDetails(),
     val isEntryValid: Boolean = true,
     val openDialogCalendar: Boolean = false,

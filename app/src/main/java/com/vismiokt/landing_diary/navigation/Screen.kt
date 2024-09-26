@@ -17,6 +17,8 @@ sealed class Screen (
         val routeFull = "$ROUTE_PLANT_EDIT/{${plantId}}"
     }
 
+    data object AboutAppDestination : Screen(ROUTE_ABOUT_APP)
+
   //  data object RequiredPermissionDestination : Screen(ROUT_REQUIRED_PERMISSION)
 
     companion object {
@@ -24,6 +26,7 @@ sealed class Screen (
         const val ROUTE_PLANT_CARD: String = "plant_card"
         const val ROUTE_PLANT_ENTRY: String = "plant_entry"
         const val ROUTE_PLANT_EDIT: String = "plant_edit"
+        const val ROUTE_ABOUT_APP: String = "about_app"
   //      const val ROUT_REQUIRED_PERMISSION: String = "required_permission"
     }
 

@@ -15,7 +15,7 @@ interface PlantsRepository {
 
     fun getPlantStream(id: Int): Flow<Plant?>
 
-    suspend fun getImageUri(plantId: Int): List<ImageUri>
+    fun getImageUri(plantId: Int): Flow<List<ImageUri>>
 
     suspend fun addImageUriList(imageUriList: List<ImageUri>)
 
