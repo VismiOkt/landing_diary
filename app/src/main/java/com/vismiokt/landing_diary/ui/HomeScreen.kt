@@ -64,7 +64,8 @@ import com.vismiokt.landing_diary.ui.view_model.HomeViewModel
 fun HomeScreen(
     drawerState: DrawerState,
     navigateToPlantEntry: () -> Unit,
-    navigateToPlantDetails: (Int) -> Unit
+    navigateToPlantDetails: (Int) -> Unit,
+
 
 ) {
     val viewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory)

@@ -2,6 +2,10 @@
     <string name="app_name">landing_diary</string>
     <string name="app_name_ru">Дневник посадок</string>
     <string name="menu_about_app">О приложении</string>
+    <string name="menu_all_plants">Все записи</string>
+    <string name="menu_current_year_plants">Записи за текущий год</string>
+    <string name="menu_settings">Настройки</string>
+    <string name="settings_theme">Тема приложения</string>
     <string name="category_vegetables">Овощи</string>
     <string name="category_herbs">Травы</string>
     <string name="category_flowers">Цветы</string>
@@ -44,7 +48,7 @@
     <string name="plant_filter_year">Год</string>
     <string name="photo_selector_no_image_selected">Изображение не было выбрано</string>
     <string name="search_bar_search">Поиск…</string>
-    <string name="about_app_title">О программе</string>
+    <string name="about_app_title">О приложении</string>
     <string name="about_app_name">Дневник посадок</string>
     <string name="about_app_version">Версия 1.0</string>
     <string name="about_app_author">© Vismiokt</string>

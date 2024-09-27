@@ -5,16 +5,13 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -22,6 +19,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material3.Card
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -44,73 +42,126 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.navigation.compose.rememberNavController
 import com.vismiokt.landing_diary.R
-import com.vismiokt.landing_diary.data.CategoryPlant
 import com.vismiokt.landing_diary.navigation.LdNavigation
+import com.vismiokt.landing_diary.navigation.Screen
 import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun LandingDiaryApp() {
-    //  val viewModel: LandingDiaryViewModel = viewModel()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-
+    val navController = rememberNavController()
+    val coroutineScope = rememberCoroutineScope()
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheet {
                 ModalNavigationApp(
-                    navigateToAboutApp = {}
+
+                    navigateToAboutApp = {
+                        navController.navigate(Screen.AboutAppDestination.route) {
+                            launchSingleTop = true
+                        }
+                        coroutineScope.launch {
+                            drawerState.close()
+                        }
+
+                    },
+                    navigateToHomeScreenAllPlants = {
+                        navController.navigate(Screen.HomeDestination.route) {
+                            launchSingleTop = true
+                        }
+                        coroutineScope.launch {
+                            drawerState.close()
+                        }
+                    },
+                    navigateToSettings = {
+                        navController.navigate(Screen.SettingsDestination.route) {
+                            launchSingleTop = true
+                        }
+                        coroutineScope.launch {
+                            drawerState.close()
+                        }
+                    }
                 )
             }
         },
     ) {
-        LdNavigation(drawerState = drawerState)
+        LdNavigation(
+            drawerState = drawerState,
+            navController = navController
+        )
     }
+
 
 }
 
+
 @Composable
 fun ModalNavigationApp(
-    navigateToAboutApp: () -> Unit
+    navigateToAboutApp: () -> Unit,
+    navigateToHomeScreenAllPlants: () -> Unit,
+    navigateToSettings: () -> Unit
 ) {
     Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-        Image(
-            painter = painterResource(R.drawable.landing_diary),
-            contentDescription = null,
+        Card(
+            shape = RoundedCornerShape(topEnd = 20.dp, bottomStart = 20.dp, topStart = 20.dp),
             modifier = Modifier
-                .size(150.dp)
-                .clip(shape = RoundedCornerShape(50))
+                .fillMaxWidth()
+                .padding(8.dp)
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.landing_diary),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(100.dp)
+                        .clip(shape = RoundedCornerShape(50))
+                )
+                Text(
+                    text = stringResource(R.string.app_name_ru),
+                    fontSize = 25.sp,
+                    textAlign = TextAlign.Center,
+                    lineHeight = 30.sp,
+                    modifier = Modifier.padding(16.dp)
+                )
+            }
+        }
+        HorizontalDivider()
+        NavigationDrawerItem(
+            label = { Text(text = stringResource(R.string.menu_all_plants))},
+            selected = false,
+            onClick = { navigateToHomeScreenAllPlants() }
         )
-        HorizontalDivider()
-        CategoryPlant.entries.forEach {
-            NavigationDrawerItem(
-                label = {
-                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(8.dp)) {
-                        Image(
-                            painter = painterResource(it.icon),
-                            contentDescription = null,
-                            modifier = Modifier.clip(
-                                CircleShape
-                            )
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(text = stringResource(it.title), modifier = Modifier)
-                    }
-                },
-                selected = false,
-                onClick = { /*TODO*/ }
-            )
-        }
-        HorizontalDivider()
-        Row (modifier = Modifier.clickable {
-            navigateToAboutApp()
-        }) {
-            Icon(Icons.Outlined.Info, contentDescription = stringResource(R.string.menu_about_app))
-            Text(text = stringResource(R.string.menu_about_app))
-        }
+        NavigationDrawerItem(
+            label = { Text(text = stringResource(R.string.menu_settings))},
+            selected = false,
+            onClick = { navigateToSettings() }
+        )
+        NavigationDrawerItem(
+            label = {
+                Row(modifier = Modifier) {
+                    Icon(
+                        Icons.Outlined.Info,
+                        contentDescription = stringResource(R.string.menu_about_app)
+                    )
+                    Text(text = stringResource(R.string.menu_about_app),
+                        modifier = Modifier.padding(start = 4.dp))
+                }
+            },
+            selected = false,
+            onClick = { navigateToAboutApp() }
+        )
+
 
     }
 
@@ -170,7 +221,8 @@ fun TopBar(
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = Color.Transparent.copy(alpha = alpha)),
+            containerColor = Color.Transparent.copy(alpha = alpha)
+        ),
     )
 }
 
@@ -204,7 +256,8 @@ fun TopBar(
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = Color.Transparent.copy(alpha = alpha)),
+            containerColor = Color.Transparent.copy(alpha = alpha)
+        ),
     )
 }
 

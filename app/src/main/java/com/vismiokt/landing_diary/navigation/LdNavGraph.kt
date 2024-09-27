@@ -8,20 +8,19 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.vismiokt.landing_diary.ui.AboutApp
-import com.vismiokt.landing_diary.ui.RequiredPermission
+import com.vismiokt.landing_diary.ui.AboutAppScreen
 import com.vismiokt.landing_diary.ui.HomeScreen
 import com.vismiokt.landing_diary.ui.PlantCard
 import com.vismiokt.landing_diary.ui.PlantEditScreen
 import com.vismiokt.landing_diary.ui.PlantEntryScreen
+import com.vismiokt.landing_diary.ui.SettingsScreen
 
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun LdNavigation(
-    navController: NavHostController = rememberNavController(),
+    navController: NavHostController,
     drawerState: DrawerState,
 
 
@@ -63,7 +62,12 @@ fun LdNavigation(
             )
         }
         composable(route = Screen.AboutAppDestination.route) {
-            AboutApp(
+            AboutAppScreen(
+                navigateBack = { navController.navigateUp() }
+            )
+        }
+        composable(route = Screen.SettingsDestination.route) {
+            SettingsScreen(
                 navigateBack = { navController.navigateUp() }
             )
         }

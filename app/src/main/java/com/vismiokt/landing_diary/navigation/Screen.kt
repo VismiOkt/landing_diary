@@ -19,7 +19,7 @@ sealed class Screen (
 
     data object AboutAppDestination : Screen(ROUTE_ABOUT_APP)
 
-  //  data object RequiredPermissionDestination : Screen(ROUT_REQUIRED_PERMISSION)
+    data object SettingsDestination : Screen(ROUTE_SETTINGS)
 
     companion object {
         const val ROUTE_HOME: String = "home"
@@ -27,7 +27,7 @@ sealed class Screen (
         const val ROUTE_PLANT_ENTRY: String = "plant_entry"
         const val ROUTE_PLANT_EDIT: String = "plant_edit"
         const val ROUTE_ABOUT_APP: String = "about_app"
-  //      const val ROUT_REQUIRED_PERMISSION: String = "required_permission"
+        const val ROUTE_SETTINGS: String = "settings"
     }
 
 

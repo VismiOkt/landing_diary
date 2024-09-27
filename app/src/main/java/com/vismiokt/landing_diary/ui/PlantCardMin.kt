@@ -8,7 +8,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CardElevation
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -23,10 +26,14 @@ fun PlantCardMin(
     plant: Plant,
     onPlantClick: (Int) -> Unit
 ) {
-    Card (modifier = Modifier
-        .fillMaxWidth()
-        .padding(4.dp)
-        .clickable { onPlantClick(plant.id) }) {
+    Card (
+        shape = RoundedCornerShape(topEnd = 20.dp, bottomStart = 20.dp),
+        elevation = CardDefaults.cardElevation(5.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(4.dp)
+            .clickable { onPlantClick(plant.id) }
+    ) {
 
         Row {
             Text(
