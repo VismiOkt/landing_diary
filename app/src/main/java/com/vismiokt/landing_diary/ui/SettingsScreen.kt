@@ -33,7 +33,8 @@ fun SettingsScreen(
     navigateBack: () -> Unit
 ) {
     val viewModel: SettingsViewModel = viewModel()
-    val uiState = viewModel.settingsUiState.collectAsState()
+  //  val uiState = viewModel.settingsUiState
+
 
     Scaffold(
         topBar = {
@@ -55,7 +56,7 @@ fun SettingsScreen(
             ) {
                 Column {
                     Text(text = stringResource(R.string.settings_theme))
-                    TabRow(selectedTabIndex = ) {
+                    TabRow(selectedTabIndex = 0) {
                         
                     }
                 }

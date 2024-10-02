@@ -34,13 +34,15 @@ object AppViewModelProvider {
                 this.createSavedStateHandle()
             )
         }
+        initializer {
+            SettingsViewModel(
+                ldApplication().container.userPreferencesRepository
+            )
+        }
+
     }
 
 }
 
-/**
- * Extension function to queries for [Application] object and returns an instance of
- * [InventoryApplication].
- */
 fun CreationExtras.ldApplication(): LdApplication =
     (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as LdApplication)
