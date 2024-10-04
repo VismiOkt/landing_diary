@@ -34,11 +34,11 @@ object AppViewModelProvider {
                 this.createSavedStateHandle()
             )
         }
-        initializer {
-            SettingsViewModel(
-                ldApplication().container.userPreferencesRepository
-            )
-        }
+//        initializer {
+//            SettingsViewModel(
+//                ldApplication().container.userPreferencesRepository
+//            )
+//        }
 
     }
 

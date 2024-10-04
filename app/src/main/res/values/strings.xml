@@ -6,6 +6,10 @@
     <string name="menu_current_year_plants">Записи за текущий год</string>
     <string name="menu_settings">Настройки</string>
     <string name="settings_theme">Тема приложения</string>
+    <string name="settings_dynamic_theme">Включить динамическую цветовую схему</string>
+    <string name="settings_theme_light">Светлая</string>
+    <string name="settings_theme_dark">Темная</string>
+    <string name="settings_theme_system">Системная</string>
     <string name="category_vegetables">Овощи</string>
     <string name="category_herbs">Травы</string>
     <string name="category_flowers">Цветы</string>
