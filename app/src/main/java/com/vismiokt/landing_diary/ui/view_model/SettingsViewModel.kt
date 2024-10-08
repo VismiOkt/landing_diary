@@ -1,5 +1,6 @@
 package com.vismiokt.landing_diary.ui.view_model
 
+import android.os.Build
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.vismiokt.landing_diary.data.AppTheme
@@ -8,7 +9,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -16,9 +16,6 @@ import javax.inject.Inject
 class SettingsViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository
 ): ViewModel() {
-
-//    private val _settingsUiState = MutableStateFlow(SettingsUiState())
-//    val settingsUiState: StateFlow<SettingsUiState> = _settingsUiState.asStateFlow()
 
     private val userPreferencesFlow = userPreferencesRepository.userPreferencesFlow
 
@@ -36,10 +33,7 @@ class SettingsViewModel @Inject constructor(
                 _settingsUiState.value = it
             }
         }
-
-
     }
-
 
     fun onDynamicTheme(enable: Boolean) {
         viewModelScope.launch {
@@ -53,12 +47,11 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-
 }
 
 data class SettingsUiState(
     val isDynamicTheme: Boolean = false,
     val appTheme: AppTheme = AppTheme.SYSTEM,
-//    val supportDynamicTheme: Boolean = false
+    val supportDynamicTheme: Boolean = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
 )
 

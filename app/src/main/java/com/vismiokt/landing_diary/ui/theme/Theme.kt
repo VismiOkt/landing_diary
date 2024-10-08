@@ -2,7 +2,9 @@ package com.vismiokt.landing_diary.ui.theme
 
 import android.app.Activity
 import android.os.Build
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.material3.darkColorScheme
@@ -12,11 +14,16 @@ import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.vismiokt.landing_diary.data.AppTheme
+import com.vismiokt.landing_diary.ui.view_model.SettingsViewModel
 
 private val lightScheme = lightColorScheme(
     primary = primaryLight,
@@ -262,18 +269,52 @@ val unspecified_scheme = ColorFamily(
 fun Landing_diaryTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = false,
+  //  dynamicColor: Boolean = false,
     content: @Composable() () -> Unit
 ) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
+    val context = LocalContext.current
 
-        darkTheme -> darkScheme
-        else -> lightScheme
+    val viewModel: SettingsViewModel = hiltViewModel()
+    val uiState = viewModel.settingsUiState.collectAsState()
+
+  //  val dynamicSchemeSupport =
+
+    val dynamicColor = uiState.value.isDynamicTheme
+//    if( dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+
+
+    val colorScheme =
+        if( dynamicColor && uiState.value.supportDynamicTheme) {
+            when (uiState.value.appTheme) {
+                AppTheme.SYSTEM -> if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(
+                    context
+                )
+
+                AppTheme.DARK -> dynamicDarkColorScheme(context)
+                AppTheme.LIGHT -> dynamicLightColorScheme(context)
+            }
+        }else {
+                when (uiState.value.appTheme) {
+                    AppTheme.SYSTEM -> if (darkTheme) darkScheme else lightScheme
+                    AppTheme.DARK  -> darkScheme
+                    AppTheme.LIGHT  -> lightScheme
+            }
+
     }
+
+
+
+
+//    val colorScheme = when {
+//        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+//            val context = LocalContext.current
+//            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+//        }
+//
+//        darkTheme -> darkScheme
+//        else -> lightScheme
+//    }
+
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {

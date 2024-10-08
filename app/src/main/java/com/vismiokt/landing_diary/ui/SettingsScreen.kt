@@ -1,14 +1,10 @@
 package com.vismiokt.landing_diary.ui
 
-
-import android.annotation.SuppressLint
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-
-
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,7 +15,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
-import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -57,32 +52,35 @@ fun SettingsScreen(
                 .fillMaxWidth()
                 .padding(paddingValues = paddingValues)
         ) {
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp)
-            ) {
-                Column(
+            if(uiState.value.supportDynamicTheme) {
+                Card(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(8.dp)
                 ) {
-                    Row {
-                        Text(
-                            text = stringResource(R.string.settings_dynamic_theme),
-                            modifier = Modifier.weight(0.8f)
-                        )
-                        Switch(
-                            checked = uiState.value.isDynamicTheme,
-                            onCheckedChange = { viewModel.onDynamicTheme(it) },
-                            modifier = Modifier.weight(0.2f)
-                        )
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp)
+                    ) {
+                        Row {
+                            Text(
+                                text = stringResource(R.string.settings_dynamic_theme),
+                                modifier = Modifier.weight(0.8f)
+                            )
+                            Switch(
+                                checked = uiState.value.isDynamicTheme,
+                                onCheckedChange = { viewModel.onDynamicTheme(it) },
+                                modifier = Modifier.weight(0.2f)
+                            )
+                        }
+
+
                     }
 
-
                 }
-
             }
+
             Card (
                 modifier = Modifier
                     .fillMaxWidth()

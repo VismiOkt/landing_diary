@@ -29,7 +29,6 @@ class MyUserPreferencesRepository @Inject constructor(
     private object PreferencesKeys {
         val IS_DYNAMIC = booleanPreferencesKey("is_dynamic")
         val APP_THEME = stringPreferencesKey("app_theme")
-//        val SHOW_COMPLETED = stringPreferencesKey("show_completed")
     }
 
     override val userPreferencesFlow: Flow<UserPreferences> = dataStore.data
