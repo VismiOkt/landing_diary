@@ -1,5 +1,6 @@
 package com.vismiokt.landing_diary.ui
 
+import android.media.ExifInterface
 import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -7,13 +8,15 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.animateZoomBy
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.transformable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -39,6 +42,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -47,17 +51,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.vismiokt.landing_diary.R
 import com.vismiokt.landing_diary.data.ResultPlant
@@ -66,6 +74,7 @@ import com.vismiokt.landing_diary.domain.PlantDetails
 import com.vismiokt.landing_diary.ui.view_model.AppViewModelProvider
 import com.vismiokt.landing_diary.ui.view_model.PlantCardViewModel
 import kotlinx.coroutines.launch
+import java.io.InputStream
 import java.util.Currency
 import java.util.Locale
 
@@ -78,7 +87,7 @@ fun PlantCard(
 ) {
     val uiState = viewModel.plantUiState.collectAsState()
     val plantDetails = uiState.value.plantDetails.collectAsState(PlantDetails())
-    val imageUriList =  uiState.value.imageUriList.collectAsState(listOf())
+    val imageUriList = uiState.value.imageUriList.collectAsState(listOf())
 
     Scaffold(
         topBar = {
@@ -122,7 +131,7 @@ fun PlantCard(
                     }
                 }
             )
-            
+
         }
         val state = rememberScrollState()
         Card(
@@ -209,10 +218,50 @@ fun PlantCard(
                 ImagePreview(
                     selectedImages = imageUriList.value,
                     onImage = { viewModel.openImageDialog(it) }
-                    )
+                )
                 if (uiState.value.openImageDialog) {
                     Dialog(onDismissRequest = { viewModel.closeImageDialog() }) {
-                        TransformableImage(uriImage = uiState.value.openImageUri)
+//                        MyZoomableBox {
+//                            AsyncImage(
+//                                modifier = Modifier
+//                                    .graphicsLayer(
+//                                        scaleX = scale,
+//                                        scaleY = scale,
+//                                        translationX = offsetX,
+//                                        translationY = offsetY
+//                                    ),
+//                                model = ImageRequest.Builder(LocalContext.current)
+//                                    .data(uiState.value.openImageUri)
+//                                    .crossfade(enable = true)
+//                                    .build(),
+//                                contentDescription = "",
+//                                //      contentScale = ContentScale.Fit,
+//                            )
+//                            IconButton(
+//                                onClick = { viewModel.closeImageDialog() }
+//                            ) {
+//
+//                                Card(
+//                                    colors = CardDefaults.cardColors(
+//                                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+//                                    ),
+//                                    modifier = Modifier
+//                                        .size(width = 25.dp, height = 25.dp)
+//                                        .alpha(0.6f)
+//                                )
+//                                {
+//                                    Icon(
+//                                        Icons.Outlined.Clear,
+//                                        contentDescription = null
+//                                    )
+//                                }
+//
+//                            }
+//                        }
+                        TransformableImage(uriImage = uiState.value.openImageUri) {
+
+                        }
+
 
                     }
                 }
@@ -228,41 +277,69 @@ fun ImagePreview(
     onImage: (Uri) -> Unit
 ) {
     LazyRow {
-        items (selectedImages) { uri ->
+        items(selectedImages) { uri ->
 
-                AsyncImage(
-                    modifier = Modifier
-                        .size(250.dp)
-                        .padding(end = 8.dp)
-                        .clickable { onImage(uri) },
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(uri)
-                        .crossfade(enable = true)
-                        .build(),
-                    contentDescription = "",
-                    contentScale = ContentScale.Crop,
-                )
+            AsyncImage(
+                modifier = Modifier
+                    .size(250.dp)
+                    .padding(end = 8.dp)
+                    .clickable { onImage(uri) },
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(uri)
+                    .crossfade(enable = true)
+                    .build(),
+                contentDescription = "",
+                contentScale = ContentScale.Crop,
+            )
         }
     }
 }
 
+
 @Composable
 private fun TransformableImage(
-    uriImage: Uri
+    uriImage: Uri,
+    onBackHandler: () -> Unit
 ) {
-    var scale by remember { mutableStateOf(1f) }
-    var rotation by remember { mutableStateOf(0f) }
+    var scale by remember { mutableFloatStateOf(1f) }
+    //   var rotation by remember { mutableFloatStateOf(0f) }
     var offset by remember { mutableStateOf(Offset.Zero) }
+
     val coroutineScope = rememberCoroutineScope()
-    BoxWithConstraints (modifier = Modifier
-        .fillMaxWidth()
-        .fillMaxHeight(0.6f)
-    //    .aspectRatio(16f, true)
+
+    val context = LocalContext.current
+
+    val painter =
+        rememberAsyncImagePainter(
+            ImageRequest.Builder(LocalContext.current)
+                .data(uriImage)
+                .apply(block = fun ImageRequest.Builder.() {
+                    //    placeholder(R.drawable.placeholder)
+                    crossfade(true)
+                    error(R.drawable.error)
+                })
+                .size(1)
+                .build()
+        )
+//    val inputStream = context.contentResolver.openInputStream(uriImage)
+//    //  val exif = ExifInterface(inputStream)
+//    val ei: ExifInterface? = inputStream?.let { ExifInterface(it) }
+//    val orientation: Int =
+//        ei?.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
+//            ?: ExifInterface.ORIENTATION_NORMAL
+
+    BoxWithConstraints(
+        contentAlignment = Alignment.Center,
+
+        modifier = Modifier
+            .clip(RectangleShape)
+            .aspectRatio((painter.intrinsicSize.width / painter.intrinsicSize.height))
+//            .aspectRatio(if (orientation == ExifInterface.ORIENTATION_ROTATE_90 || orientation == ExifInterface.ORIENTATION_ROTATE_270 || orientation == ExifInterface.ORIENTATION_TRANSVERSE) (painter.intrinsicSize.width / painter.intrinsicSize.height) else (painter.intrinsicSize.height / painter.intrinsicSize.width))
     ) {
-        
+
         val state = rememberTransformableState { zoomChange, offsetChange, rotationChange ->
-            scale =  (scale * zoomChange).coerceIn(1f, 5f)
-            rotation += rotationChange
+            scale = (scale * zoomChange).coerceIn(1f, 5f)
+            //       rotation += rotationChange
             val width = (scale - 1) * constraints.maxWidth
             val height = (scale - 1) * constraints.maxHeight
             val maxX = width / 2
@@ -272,16 +349,15 @@ private fun TransformableImage(
                 y = (offset.y + scale * offsetChange.y).coerceIn(-maxY, maxY)
             )
         }
-        AsyncImage(
+        Image(
+            painter = painter,
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
             modifier = Modifier
-                //   .aspectRatio(1f, true)
-                //   .offset { IntOffset(offset.x.roundToInt(), offset.y.roundToInt()) }
-
-                //     .fillMaxWidth()
+                .fillMaxWidth()
                 .graphicsLayer(
                     scaleX = scale,
                     scaleY = scale,
-                    //           rotationZ = rotation,
                     translationX = offset.x,
                     translationY = offset.y
                 )
@@ -293,60 +369,16 @@ private fun TransformableImage(
                     )
                 }
                 .transformable(state = state)
-                ,
-            //      .weight(0.8f),
-            //   .size(550.dp),
-            model = ImageRequest.Builder(LocalContext.current)
-                .data(uriImage)
-                .crossfade(enable = true)
-                .build(),
-            contentDescription = "",
-            contentScale = ContentScale.Fit,
         )
-
-    }
-
-//    Box(
-//        Modifier
-//            .graphicsLayer(
-//                scaleX = scale,
-//                scaleY = scale,
-//     //           rotationZ = rotation,
-//                translationX = offset.x,
-//                translationY = offset.y
-//            )
-//            .transformable(state = state)
-////            .background(Color.Blue)
-//     //       .fillMaxSize()
-//    ) {
-
-//    }
-//    Box(
-//        Modifier
-//            .size(200.dp)
-//            .clipToBounds()
-//            .background(Color.LightGray)
-//    ) {
-//        // set up all transformation states
-//        var scale by remember { mutableStateOf(1f) }
-//        var rotation by remember { mutableStateOf(0f) }
-//        var offset by remember { mutableStateOf(Offset.Zero) }
-//        val coroutineScope = rememberCoroutineScope()
-//        // let's create a modifier state to specify how to update our UI state defined above
-//        val state = rememberTransformableState { zoomChange, offsetChange, rotationChange ->
-//            // note: scale goes by factor, not an absolute difference, so we need to multiply it
-//            // for this example, we don't allow downscaling, so cap it to 1f
-//            scale = max(scale * zoomChange, 1f)
-//            rotation += rotationChange
-//            offset += offsetChange
-//        }
-//        Box(
-//            Modifier
-//                // apply pan offset state as a layout transformation before other modifiers
-//                .offset { IntOffset(offset.x.roundToInt(), offset.y.roundToInt()) }
-//                // add transformable to listen to multitouch transformation events after offset
-//                .transformable(state = state)
-//                // optional for example: add double click to zoom
+//        AsyncImage(
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .graphicsLayer(
+//                    scaleX = scale,
+//                    scaleY = scale,
+//                    translationX = offset.x,
+//                    translationY = offset.y
+//                )
 //                .pointerInput(Unit) {
 //                    detectTapGestures(
 //                        onDoubleTap = {
@@ -354,23 +386,72 @@ private fun TransformableImage(
 //                        }
 //                    )
 //                }
-//                .fillMaxSize()
-//                .border(1.dp, Color.Green),
-//            contentAlignment = Alignment.Center
-//        ) {
-//            Text(
-//                "\uD83C\uDF55",
-//                fontSize = 32.sp,
-//                // apply other transformations like rotation and zoom on the pizza slice emoji
-//                modifier = Modifier.graphicsLayer {
-//                    scaleX = scale
-//                    scaleY = scale
-//                    rotationZ = rotation
-//                }
-//            )
-//        }
-//    }
+//                .transformable(state = state)
+//                ,
+//            model = ImageRequest.Builder(LocalContext.current)
+//                .data(uriImage)
+//                .crossfade(enable = true)
+//                .build(),
+//            contentDescription = "",
+//            contentScale = ContentScale.Fit,
+//        )
+
+    }
 }
+
+@Composable
+fun ZoomableBox(
+    modifier: Modifier = Modifier,
+    minScale: Float = 1f,
+    maxScale: Float = 5f,
+    content: @Composable ZoomableBoxScope.() -> Unit
+) {
+    var scale by remember { mutableFloatStateOf(1f) }
+    var offsetX by remember { mutableFloatStateOf(0f) }
+    var offsetY by remember { mutableFloatStateOf(0f) }
+    var size by remember { mutableStateOf(IntSize.Zero) }
+
+    Box(
+        contentAlignment = Alignment.TopEnd,
+        modifier = modifier
+            //        .clip(RectangleShape)
+            .onSizeChanged { size = it }
+            .pointerInput(Unit) {
+                detectTransformGestures { _, pan, zoom, _ ->
+                    scale = maxOf(minScale, minOf(scale * zoom, maxScale))
+                    val maxX = (size.width * (scale - 1)) / 2
+                    val minX = -maxX
+                    offsetX = maxOf(minX, minOf(maxX, offsetX + pan.x))
+                    val maxY = (size.height * (scale - 1)) / 2
+                    val minY = -maxY
+                    offsetY = maxOf(minY, minOf(maxY, offsetY + pan.y))
+                }
+            }
+            .pointerInput(Unit) {
+                detectTapGestures(
+                    onDoubleTap = {
+                        scale = if (scale > 1f) 1f
+                        else 3f
+                    }
+                )
+            }
+    ) {
+        val scope = ZoomableBoxScopeImpl(scale, offsetX, offsetY)
+        scope.content()
+    }
+}
+
+interface ZoomableBoxScope {
+    val scale: Float
+    val offsetX: Float
+    val offsetY: Float
+}
+
+private data class ZoomableBoxScopeImpl(
+    override val scale: Float,
+    override val offsetX: Float,
+    override val offsetY: Float
+) : ZoomableBoxScope
 
 
 

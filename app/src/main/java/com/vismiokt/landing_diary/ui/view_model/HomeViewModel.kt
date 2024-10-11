@@ -93,13 +93,13 @@ class HomeViewModel(
 
     fun onClickValueResult(result: ResultPlant) {
         viewModelScope.launch {
-            if (homeUiState.value.onFilterCategory && homeUiState.value.onFilterYear) plantsRepository.getPlantsByResultAndCategoryAndYear(
+            (if (homeUiState.value.onFilterCategory && homeUiState.value.onFilterYear) plantsRepository.getPlantsByResultAndCategoryAndYear(
                 result, homeUiState.value.filterCategory!!, homeUiState.value.filterYear!!
             ) else if (homeUiState.value.onFilterCategory && !homeUiState.value.onFilterYear) plantsRepository.getPlantsByResultAndCategory(
                 result, homeUiState.value.filterCategory!!
             ) else if (!homeUiState.value.onFilterCategory && homeUiState.value.onFilterYear) plantsRepository.getPlantsByResultAndYear(
                 result, homeUiState.value.filterYear!!
-            ) else plantsRepository.getPlantsByResult(result)
+            ) else plantsRepository.getPlantsByResult(result))
                 .collect {
                     _plants.value = it
                 }
@@ -116,14 +116,14 @@ class HomeViewModel(
 
     fun onClickValueCategory(category: CategoryPlant) {
         viewModelScope.launch {
-            if (homeUiState.value.onFilterResult && homeUiState.value.onFilterYear) plantsRepository.getPlantsByResultAndCategoryAndYear(
+            (if (homeUiState.value.onFilterResult && homeUiState.value.onFilterYear) plantsRepository.getPlantsByResultAndCategoryAndYear(
                 homeUiState.value.filterResult!!, category, homeUiState.value.filterYear!!
             ) else if (homeUiState.value.onFilterResult && !homeUiState.value.onFilterYear) plantsRepository.getPlantsByResultAndCategory(
                 homeUiState.value.filterResult!!,
                 category
             ) else if (!homeUiState.value.onFilterResult && homeUiState.value.onFilterYear) plantsRepository.getPlantsByCategoryAndYear(
                 category, homeUiState.value.filterYear!!
-            ) else plantsRepository.getPlantsByCategory(category)
+            ) else plantsRepository.getPlantsByCategory(category))
                 .collect {
                     _plants.value = it
                 }
@@ -139,13 +139,13 @@ class HomeViewModel(
 
     fun onClickValueYear(year: String) {
         viewModelScope.launch {
-            if (homeUiState.value.onFilterCategory && homeUiState.value.onFilterResult) plantsRepository.getPlantsByResultAndCategoryAndYear(
+            (if (homeUiState.value.onFilterCategory && homeUiState.value.onFilterResult) plantsRepository.getPlantsByResultAndCategoryAndYear(
                 homeUiState.value.filterResult!!, homeUiState.value.filterCategory!!, year
             ) else if (homeUiState.value.onFilterCategory && !homeUiState.value.onFilterResult) plantsRepository.getPlantsByCategoryAndYear(
                 homeUiState.value.filterCategory!!, year
             ) else if (!homeUiState.value.onFilterCategory && homeUiState.value.onFilterResult) plantsRepository.getPlantsByResultAndYear(
                 homeUiState.value.filterResult!!, year
-            ) else plantsRepository.getPlantsByYear(year)
+            ) else plantsRepository.getPlantsByYear(year))
                 .collect {
                     _plants.value = it
                 }
@@ -161,13 +161,13 @@ class HomeViewModel(
 
     fun deleteFilterCategory() {
         viewModelScope.launch {
-            if (homeUiState.value.onFilterResult && homeUiState.value.onFilterYear) plantsRepository.getPlantsByResultAndYear(
+            (if (homeUiState.value.onFilterResult && homeUiState.value.onFilterYear) plantsRepository.getPlantsByResultAndYear(
                 homeUiState.value.filterResult!!, homeUiState.value.filterYear!!
             ) else if (homeUiState.value.onFilterResult && !homeUiState.value.onFilterYear) plantsRepository.getPlantsByResult(
                 homeUiState.value.filterResult!!
             ) else if (!homeUiState.value.onFilterResult && homeUiState.value.onFilterYear) plantsRepository.getPlantsByYear(
                 homeUiState.value.filterYear!!
-            ) else plantsRepository.getAllPlants()
+            ) else plantsRepository.getAllPlants())
                 .collect {
                     _plants.value = it
                 }
@@ -182,13 +182,13 @@ class HomeViewModel(
 
     fun deleteFilterResult() {
         viewModelScope.launch {
-            if (homeUiState.value.onFilterCategory && homeUiState.value.onFilterYear) plantsRepository.getPlantsByCategoryAndYear(
+            (if (homeUiState.value.onFilterCategory && homeUiState.value.onFilterYear) plantsRepository.getPlantsByCategoryAndYear(
                 homeUiState.value.filterCategory!!, homeUiState.value.filterYear!!
             ) else if (homeUiState.value.onFilterCategory && !homeUiState.value.onFilterYear) plantsRepository.getPlantsByCategory(
                 homeUiState.value.filterCategory!!
             ) else if (!homeUiState.value.onFilterCategory && homeUiState.value.onFilterYear) plantsRepository.getPlantsByYear(
                 homeUiState.value.filterYear!!
-            ) else plantsRepository.getAllPlants()
+            ) else plantsRepository.getAllPlants())
                 .collect {
                     _plants.value = it
                 }
@@ -203,13 +203,13 @@ class HomeViewModel(
 
     fun deleteFilterYear() {
         viewModelScope.launch {
-            if (homeUiState.value.onFilterCategory && homeUiState.value.onFilterResult) plantsRepository.getPlantsByResultAndCategory(
+            (if (homeUiState.value.onFilterCategory && homeUiState.value.onFilterResult) plantsRepository.getPlantsByResultAndCategory(
                 homeUiState.value.filterResult!!, homeUiState.value.filterCategory!!
             ) else if (homeUiState.value.onFilterCategory && !homeUiState.value.onFilterResult) plantsRepository.getPlantsByCategory(
                 homeUiState.value.filterCategory!!
             ) else if (!homeUiState.value.onFilterCategory && homeUiState.value.onFilterResult) plantsRepository.getPlantsByResult(
                 homeUiState.value.filterResult!!
-            ) else plantsRepository.getAllPlants()
+            ) else plantsRepository.getAllPlants())
                 .collect {
                     _plants.value = it
                 }

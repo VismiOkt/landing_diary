@@ -84,8 +84,6 @@ fun PlantEditScreen(
                 uiState.plantDetails.nameVariety,
                 alpha = 0f,
                 onBackButton = navigateBack,
-           //     actionIcon = R.drawable.baseline_tune_24,
-           //     onActionIcon = {}
             )
         },
         modifier = Modifier.fillMaxSize()
