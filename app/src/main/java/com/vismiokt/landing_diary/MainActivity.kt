@@ -14,14 +14,12 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 //        val fs = Firebase.firestore
 //        fs.collection("plants").document().set(Plant(1, "tutu"))
 //        enableEdgeToEdge()
-
 
         setContent {
             Landing_diaryTheme {

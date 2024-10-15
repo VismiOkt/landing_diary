@@ -72,7 +72,7 @@ dependencies {
     implementation(libs.androidx.navigation.runtime.ktx)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.appcompat)
-    ksp("androidx.room:room-compiler:${rootProject.extra["room_version"]}")
+    ksp("androidx.room:room-compiler:2.6.1")
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.navigation.compose.v281)
     implementation (libs.androidx.camera.core)
@@ -91,7 +91,7 @@ dependencies {
     ksp("androidx.hilt:hilt-compiler:1.2.0")
     implementation(libs.androidx.work.runtime.ktx)
 
-
+    implementation("androidx.activity:activity-ktx:1.8.2")
 
 
 

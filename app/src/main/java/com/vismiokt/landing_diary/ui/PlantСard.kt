@@ -65,6 +65,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.vismiokt.landing_diary.R
@@ -221,47 +222,10 @@ fun PlantCard(
                 )
                 if (uiState.value.openImageDialog) {
                     Dialog(onDismissRequest = { viewModel.closeImageDialog() }) {
-//                        MyZoomableBox {
-//                            AsyncImage(
-//                                modifier = Modifier
-//                                    .graphicsLayer(
-//                                        scaleX = scale,
-//                                        scaleY = scale,
-//                                        translationX = offsetX,
-//                                        translationY = offsetY
-//                                    ),
-//                                model = ImageRequest.Builder(LocalContext.current)
-//                                    .data(uiState.value.openImageUri)
-//                                    .crossfade(enable = true)
-//                                    .build(),
-//                                contentDescription = "",
-//                                //      contentScale = ContentScale.Fit,
-//                            )
-//                            IconButton(
-//                                onClick = { viewModel.closeImageDialog() }
-//                            ) {
-//
-//                                Card(
-//                                    colors = CardDefaults.cardColors(
-//                                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
-//                                    ),
-//                                    modifier = Modifier
-//                                        .size(width = 25.dp, height = 25.dp)
-//                                        .alpha(0.6f)
-//                                )
-//                                {
-//                                    Icon(
-//                                        Icons.Outlined.Clear,
-//                                        contentDescription = null
-//                                    )
-//                                }
-//
-//                            }
-//                        }
+                        //   if (uiState.value.openImageUri == Uri.EMPTY)
+
                         TransformableImage(uriImage = uiState.value.openImageUri) {
-
                         }
-
 
                     }
                 }
@@ -283,10 +247,17 @@ fun ImagePreview(
                 modifier = Modifier
                     .size(250.dp)
                     .padding(end = 8.dp)
-                    .clickable { onImage(uri) },
+                    .clickable {
+//                        try {
+                        onImage(uri)
+//                        } catch (_: Exception) {
+//
+//                        }
+                    },
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(uri)
                     .crossfade(enable = true)
+                    .error(R.drawable.error)
                     .build(),
                 contentDescription = "",
                 contentScale = ContentScale.Crop,
@@ -307,7 +278,7 @@ private fun TransformableImage(
 
     val coroutineScope = rememberCoroutineScope()
 
-    val context = LocalContext.current
+    //  val context = LocalContext.current
 
     val painter =
         rememberAsyncImagePainter(
@@ -321,55 +292,58 @@ private fun TransformableImage(
                 .size(1)
                 .build()
         )
+
 //    val inputStream = context.contentResolver.openInputStream(uriImage)
 //    //  val exif = ExifInterface(inputStream)
 //    val ei: ExifInterface? = inputStream?.let { ExifInterface(it) }
 //    val orientation: Int =
 //        ei?.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
 //            ?: ExifInterface.ORIENTATION_NORMAL
+    if (painter.intrinsicSize.width == null) {
+        Text(text = stringResource(R.string.plant_card_image_error))
+    } else {
+        BoxWithConstraints(
+            contentAlignment = Alignment.Center,
 
-    BoxWithConstraints(
-        contentAlignment = Alignment.Center,
-
-        modifier = Modifier
-            .clip(RectangleShape)
-            .aspectRatio((painter.intrinsicSize.width / painter.intrinsicSize.height))
-//            .aspectRatio(if (orientation == ExifInterface.ORIENTATION_ROTATE_90 || orientation == ExifInterface.ORIENTATION_ROTATE_270 || orientation == ExifInterface.ORIENTATION_TRANSVERSE) (painter.intrinsicSize.width / painter.intrinsicSize.height) else (painter.intrinsicSize.height / painter.intrinsicSize.width))
-    ) {
-
-        val state = rememberTransformableState { zoomChange, offsetChange, rotationChange ->
-            scale = (scale * zoomChange).coerceIn(1f, 5f)
-            //       rotation += rotationChange
-            val width = (scale - 1) * constraints.maxWidth
-            val height = (scale - 1) * constraints.maxHeight
-            val maxX = width / 2
-            val maxY = height / 2
-            offset = Offset(
-                x = (offset.x + scale * offsetChange.x).coerceIn(-maxX, maxX),
-                y = (offset.y + scale * offsetChange.y).coerceIn(-maxY, maxY)
-            )
-        }
-        Image(
-            painter = painter,
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
             modifier = Modifier
-                .fillMaxWidth()
-                .graphicsLayer(
-                    scaleX = scale,
-                    scaleY = scale,
-                    translationX = offset.x,
-                    translationY = offset.y
+                .clip(RectangleShape)
+                .aspectRatio((painter.intrinsicSize.width / painter.intrinsicSize.height))
+//            .aspectRatio(if (orientation == ExifInterface.ORIENTATION_ROTATE_90 || orientation == ExifInterface.ORIENTATION_ROTATE_270 || orientation == ExifInterface.ORIENTATION_TRANSVERSE) (painter.intrinsicSize.width / painter.intrinsicSize.height) else (painter.intrinsicSize.height / painter.intrinsicSize.width))
+        ) {
+
+            val state = rememberTransformableState { zoomChange, offsetChange, rotationChange ->
+                scale = (scale * zoomChange).coerceIn(1f, 5f)
+                //       rotation += rotationChange
+                val width = (scale - 1) * constraints.maxWidth
+                val height = (scale - 1) * constraints.maxHeight
+                val maxX = width / 2
+                val maxY = height / 2
+                offset = Offset(
+                    x = (offset.x + scale * offsetChange.x).coerceIn(-maxX, maxX),
+                    y = (offset.y + scale * offsetChange.y).coerceIn(-maxY, maxY)
                 )
-                .pointerInput(Unit) {
-                    detectTapGestures(
-                        onDoubleTap = {
-                            coroutineScope.launch { state.animateZoomBy(4f) }
-                        }
+            }
+            Image(
+                painter = painter,
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .graphicsLayer(
+                        scaleX = scale,
+                        scaleY = scale,
+                        translationX = offset.x,
+                        translationY = offset.y
                     )
-                }
-                .transformable(state = state)
-        )
+                    .pointerInput(Unit) {
+                        detectTapGestures(
+                            onDoubleTap = {
+                                coroutineScope.launch { state.animateZoomBy(4f) }
+                            }
+                        )
+                    }
+                    .transformable(state = state)
+            )
 //        AsyncImage(
 //            modifier = Modifier
 //                .fillMaxWidth()
@@ -396,7 +370,10 @@ private fun TransformableImage(
 //            contentScale = ContentScale.Fit,
 //        )
 
+        }
+
     }
+
 }
 
 @Composable
