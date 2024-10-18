@@ -1,5 +1,6 @@
 package com.vismiokt.landing_diary.ui
 
+import android.graphics.drawable.Drawable
 import android.media.ExifInterface
 import android.net.Uri
 import android.os.Build
@@ -11,6 +12,7 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.transformable
+import androidx.compose.foundation.gestures.zoomBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -53,6 +55,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
@@ -63,10 +66,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
+import coil.request.ErrorResult
 import coil.request.ImageRequest
 import com.vismiokt.landing_diary.R
 import com.vismiokt.landing_diary.data.ResultPlant
@@ -86,9 +91,9 @@ fun PlantCard(
     viewModel: PlantCardViewModel = viewModel(factory = AppViewModelProvider.Factory),
     navigateBack: () -> Unit
 ) {
-    val uiState = viewModel.plantUiState.collectAsState()
-    val plantDetails = uiState.value.plantDetails.collectAsState(PlantDetails())
-    val imageUriList = uiState.value.imageUriList.collectAsState(listOf())
+    val uiState = viewModel.plantUiState.collectAsStateWithLifecycle()
+    val plantDetails = uiState.value.plantDetails.collectAsStateWithLifecycle(PlantDetails())
+    val imageUriList = uiState.value.imageUriList.collectAsStateWithLifecycle(listOf())
 
     Scaffold(
         topBar = {
@@ -242,17 +247,12 @@ fun ImagePreview(
 ) {
     LazyRow {
         items(selectedImages) { uri ->
-
             AsyncImage(
                 modifier = Modifier
                     .size(250.dp)
                     .padding(end = 8.dp)
                     .clickable {
-//                        try {
                         onImage(uri)
-//                        } catch (_: Exception) {
-//
-//                        }
                     },
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(uri)
@@ -273,9 +273,7 @@ private fun TransformableImage(
     onBackHandler: () -> Unit
 ) {
     var scale by remember { mutableFloatStateOf(1f) }
-    //   var rotation by remember { mutableFloatStateOf(0f) }
     var offset by remember { mutableStateOf(Offset.Zero) }
-
     val coroutineScope = rememberCoroutineScope()
 
     //  val context = LocalContext.current
@@ -299,8 +297,8 @@ private fun TransformableImage(
 //    val orientation: Int =
 //        ei?.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
 //            ?: ExifInterface.ORIENTATION_NORMAL
-    if (painter.intrinsicSize.width == null) {
-        Text(text = stringResource(R.string.plant_card_image_error))
+    if (painter.state == AsyncImagePainter.State.Loading(painter = null)) {
+        Text(text = stringResource(R.string.plant_card_image_loader))
     } else {
         BoxWithConstraints(
             contentAlignment = Alignment.Center,
@@ -311,9 +309,8 @@ private fun TransformableImage(
 //            .aspectRatio(if (orientation == ExifInterface.ORIENTATION_ROTATE_90 || orientation == ExifInterface.ORIENTATION_ROTATE_270 || orientation == ExifInterface.ORIENTATION_TRANSVERSE) (painter.intrinsicSize.width / painter.intrinsicSize.height) else (painter.intrinsicSize.height / painter.intrinsicSize.width))
         ) {
 
-            val state = rememberTransformableState { zoomChange, offsetChange, rotationChange ->
+            val state = rememberTransformableState { zoomChange, offsetChange, _ ->
                 scale = (scale * zoomChange).coerceIn(1f, 5f)
-                //       rotation += rotationChange
                 val width = (scale - 1) * constraints.maxWidth
                 val height = (scale - 1) * constraints.maxHeight
                 val maxX = width / 2
@@ -338,97 +335,25 @@ private fun TransformableImage(
                     .pointerInput(Unit) {
                         detectTapGestures(
                             onDoubleTap = {
-                                coroutineScope.launch { state.animateZoomBy(4f) }
+                                if (scale == 5f) {
+                                    scale = 1f
+                                    offset = Offset(x = 0f, y = 0f)
+                                }
+                                else {
+                                    coroutineScope.launch {
+                                        state.animateZoomBy(scale + 2f)
+                                    }
+                                }
+
                             }
                         )
                     }
                     .transformable(state = state)
             )
-//        AsyncImage(
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .graphicsLayer(
-//                    scaleX = scale,
-//                    scaleY = scale,
-//                    translationX = offset.x,
-//                    translationY = offset.y
-//                )
-//                .pointerInput(Unit) {
-//                    detectTapGestures(
-//                        onDoubleTap = {
-//                            coroutineScope.launch { state.animateZoomBy(4f) }
-//                        }
-//                    )
-//                }
-//                .transformable(state = state)
-//                ,
-//            model = ImageRequest.Builder(LocalContext.current)
-//                .data(uriImage)
-//                .crossfade(enable = true)
-//                .build(),
-//            contentDescription = "",
-//            contentScale = ContentScale.Fit,
-//        )
-
         }
-
-    }
-
-}
-
-@Composable
-fun ZoomableBox(
-    modifier: Modifier = Modifier,
-    minScale: Float = 1f,
-    maxScale: Float = 5f,
-    content: @Composable ZoomableBoxScope.() -> Unit
-) {
-    var scale by remember { mutableFloatStateOf(1f) }
-    var offsetX by remember { mutableFloatStateOf(0f) }
-    var offsetY by remember { mutableFloatStateOf(0f) }
-    var size by remember { mutableStateOf(IntSize.Zero) }
-
-    Box(
-        contentAlignment = Alignment.TopEnd,
-        modifier = modifier
-            //        .clip(RectangleShape)
-            .onSizeChanged { size = it }
-            .pointerInput(Unit) {
-                detectTransformGestures { _, pan, zoom, _ ->
-                    scale = maxOf(minScale, minOf(scale * zoom, maxScale))
-                    val maxX = (size.width * (scale - 1)) / 2
-                    val minX = -maxX
-                    offsetX = maxOf(minX, minOf(maxX, offsetX + pan.x))
-                    val maxY = (size.height * (scale - 1)) / 2
-                    val minY = -maxY
-                    offsetY = maxOf(minY, minOf(maxY, offsetY + pan.y))
-                }
-            }
-            .pointerInput(Unit) {
-                detectTapGestures(
-                    onDoubleTap = {
-                        scale = if (scale > 1f) 1f
-                        else 3f
-                    }
-                )
-            }
-    ) {
-        val scope = ZoomableBoxScopeImpl(scale, offsetX, offsetY)
-        scope.content()
     }
 }
 
-interface ZoomableBoxScope {
-    val scale: Float
-    val offsetX: Float
-    val offsetY: Float
-}
-
-private data class ZoomableBoxScopeImpl(
-    override val scale: Float,
-    override val offsetX: Float,
-    override val offsetY: Float
-) : ZoomableBoxScope
 
 
 

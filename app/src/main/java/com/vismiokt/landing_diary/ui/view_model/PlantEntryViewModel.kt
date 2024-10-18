@@ -3,24 +3,22 @@ package com.vismiokt.landing_diary.ui.view_model
 import android.content.Context
 import android.net.Uri
 import android.os.Build
+import android.os.Environment.DIRECTORY_PICTURES
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.vismiokt.landing_diary.data.CategoryPlant
 import com.vismiokt.landing_diary.data.ImageUri
-import com.vismiokt.landing_diary.data.Plant
 import com.vismiokt.landing_diary.data.PlantsRepository
-import com.vismiokt.landing_diary.data.ResultPlant
 import com.vismiokt.landing_diary.domain.FormatDateUseCase
 import com.vismiokt.landing_diary.domain.PlantDetails
 import com.vismiokt.landing_diary.domain.toPlant
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-import java.time.LocalDate
+import java.io.File
 
 @RequiresApi(Build.VERSION_CODES.O)
 class PlantEntryViewModel(private val repository: PlantsRepository) : ViewModel() {
@@ -60,12 +58,12 @@ class PlantEntryViewModel(private val repository: PlantsRepository) : ViewModel(
     fun savePlant(context: Context) {
         var id = 0L
         if (plantUiState.isEntryValid) {
-//            _uriImgList.value.forEach {
-//                saveImageToInternalStorage(context, it)
-//            }
+            val resultAddNew = _uriImgList.value.toMutableList().apply { replaceAll { uri ->
+                saveImageToExternalStorage(context, uri)
+            }  }
             viewModelScope.launch {
                 id = repository.insertPlant(plantUiState.plantDetails.toPlant())
-                repository.addImageUriList(_uriImgList.value.map {
+                repository.addImageUriList(resultAddNew.map {
                     ImageUri(
                         id = 0,
                         plantId = id.toInt(),
@@ -76,25 +74,19 @@ class PlantEntryViewModel(private val repository: PlantsRepository) : ViewModel(
         }
     }
 
-//    fun copyImgInFile() {
-//        val name = FormatDateUseCase().getDateNowForName()
-//        val imgFile = File("Pictures/Landing_diary-Image/$name")
-//        var imgBitmap: Bitmap? = null
-//        if (imgFile.exists()) {
-//            imgBitmap = BitmapFactory.decodeFile(imgFile.absolutePath)
-//        }
-//    }
-
-//    fun saveImageToInternalStorage(context: Context, uri: Uri) {
-//        val name = FormatDateUseCase().getDateNowForName()
-//        val inputStream = context.contentResolver.openInputStream(uri)
-//        val outputStream = context.openFileOutput(name, Context.MODE_PRIVATE)
-//        inputStream?.use { input ->
-//            outputStream.use { output ->
-//                input.copyTo(output)
-//            }
-//        }
-//    }
+    private fun saveImageToExternalStorage(context: Context, uri: Uri) : Uri {
+        val name = FormatDateUseCase().getDateNowForName() + ".jpg"
+        val inputStream = context.contentResolver.openInputStream(uri)
+        val file = File(context.getExternalFilesDir(DIRECTORY_PICTURES), name)
+        var uriNew: Uri = Uri.EMPTY
+        inputStream?.use { input ->
+            file.outputStream().use { output ->
+                input.copyTo(output)
+                uriNew = Uri.fromFile(file)
+            }
+        }
+        return uriNew
+    }
 
     fun closeDatePickerDialog() {
         plantUiState = plantUiState.copy(openDialogCalendar = false)

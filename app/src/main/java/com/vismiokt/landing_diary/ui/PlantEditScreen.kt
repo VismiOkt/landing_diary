@@ -339,7 +339,6 @@ fun PlantEditBody(
         Button(
             onClick = {
                 openCamera()
-
             },
             modifier = Modifier
                 .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
@@ -376,6 +375,7 @@ fun ImagePreviewEdit(
                     model = ImageRequest.Builder(LocalContext.current)
                         .data(uri)
                         .crossfade(enable = true)
+                        .error(R.drawable.error)
                         .build(),
                     contentDescription = "",
                     contentScale = ContentScale.Crop,

@@ -3,10 +3,12 @@ package com.vismiokt.landing_diary.ui.view_model
 import android.content.Context
 import android.net.Uri
 import android.os.Build
+import android.os.Environment.DIRECTORY_PICTURES
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.core.net.toFile
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -24,6 +26,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.io.File
 
 @RequiresApi(Build.VERSION_CODES.O)
 class PlantEditViewModel (private val repository: PlantsRepository,
@@ -122,16 +125,21 @@ class PlantEditViewModel (private val repository: PlantsRepository,
         if (validatePlant()) {
             viewModelScope.launch {
                 repository.updatePlant(plantUiState.plantDetails.toPlant())
-             //   resultAdd.forEach { uri: Uri? -> uri?.let { saveImageToInternalStorage(context, it) } }
+                if (resultAdd.isNotEmpty()) {
+                    val resultAddNew = resultAdd.toMutableList().apply { replaceAll { uri ->
+                        saveImageToExternalStorage(context, uri)
+                    }  }
+                    //    resultAdd.forEach { uri: Uri? -> uri?.let {  } }
 
-                repository.addImageUriList(resultAdd.map {
-                    ImageUri(
-                        id = 0,
-                        plantId = plantDetails.id,
-                        uriImg = it
-                    )
-                })
-                if(resultDelete.isNotEmpty()) {
+                    repository.addImageUriList(resultAddNew.map {
+                        ImageUri(
+                            id = 0,
+                            plantId = plantDetails.id,
+                            uriImg = it
+                        )
+                    })
+                }
+                if (resultDelete.isNotEmpty()) {
                     resultDelete.forEach { repository.deleteImageUri(it, plantDetails.id) }
 
                 }
@@ -140,42 +148,33 @@ class PlantEditViewModel (private val repository: PlantsRepository,
             if (resultDelete.isNotEmpty()) {
                 resultDelete.forEach {
                     try {
-                        contentResolver.delete(it, null, null)
-                    } catch (ex: SecurityException) {
+  //                      contentResolver.delete(it, null, null)
+                        it.toFile().delete()
+                    } catch (ex: Exception) {
+//                    } catch (ex: SecurityException) {
 
                     }
                 }
             }
-        //        resultAdd.forEach { saveImageToInternalStorage(context, it) }
         }
      }
 
-//    @RequiresApi(Build.VERSION_CODES.O)
-//    fun saveImageToInternalStorage(context: Context, uri: Uri) {
-//        val name = FormatDateUseCase().getDateNowForName()
-//        val inputStream = context.contentResolver.openInputStream(uri)
-//        val outputStream = context.openFileOutput(name, Context.MODE_PRIVATE)
-//       // var uriNew: Uri = Uri.EMPTY
-//        inputStream?.use { input ->
-//            outputStream.use { output ->
-//                input.copyTo(output)
-//              //  uriNew = Uri.fromFile(output)
-//            }
-//        }
-//
-//    }
 
-//    @SuppressLint("RestrictedApi")
-//    fun getAppSpecificAlbumStorageDir(context: Context, albumName: String): File? {
-//        // Get the pictures directory that's inside the app-specific directory on
-//        // external storage.
-//        val file = File(context.getExternalFilesDir(
-//            Environment.DIRECTORY_PICTURES), albumName)
-//        if (!file?.mkdirs()) {
-//            Log.e(LOG_TAG, "Directory not created")
-//        }
-//        return file
-//    }
+    private fun saveImageToExternalStorage(context: Context, uri: Uri) : Uri {
+        val name = FormatDateUseCase().getDateNowForName() + ".jpg"
+        val inputStream = context.contentResolver.openInputStream(uri)
+        val file = File(context.getExternalFilesDir(DIRECTORY_PICTURES), name)
+ //               val outputStream = context.openFileOutput(name, Context.MODE_PRIVATE)
+        var uriNew: Uri = Uri.EMPTY
+        inputStream?.use { input ->
+            file.outputStream().use { output ->
+                    input.copyTo(output)
+                    uriNew = Uri.fromFile(file)
+                }
+        }
+        return uriNew
+    }
+
 
 
     fun closeDatePickerDialog() {
