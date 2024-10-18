@@ -1,11 +1,9 @@
 package com.vismiokt.landing_diary.ui
 
-
-import android.content.ContentValues
 import android.content.Context
 import android.net.Uri
 import android.os.Build
-import android.provider.MediaStore
+import android.os.Environment.DIRECTORY_PICTURES
 import androidx.annotation.RequiresApi
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
@@ -34,6 +32,7 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.ContextCompat
 import com.vismiokt.landing_diary.R
 import com.vismiokt.landing_diary.domain.FormatDateUseCase
+import java.io.File
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -42,7 +41,7 @@ import kotlin.coroutines.suspendCoroutine
 @Composable
 fun CameraPreviewScreen(
     navigateBack: () -> Unit,
-       saveImg: (Uri) -> Unit
+    saveImg: (Uri) -> Unit
 
 ) {
     val lensFacing = CameraSelector.LENS_FACING_BACK
@@ -99,9 +98,9 @@ fun CameraPreviewScreen(
         }
 
 
-        TopBar(title = "", alpha = 0.3f) {
-            navigateBack()
-        }
+//        TopBar(title = "", alpha = 0.3f) {
+//            navigateBack()
+//        }
 
             }
 
@@ -126,28 +125,34 @@ private fun captureImage(
     navigateBack: () -> Unit,
     saveImg: (Uri) -> Unit
 ) {
-    val name = FormatDateUseCase().getDateNowForName()
-    val contentValues = ContentValues().apply {
-        put(MediaStore.MediaColumns.DISPLAY_NAME, name)
-        put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
-            put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/Landing_diary-Image")
-        }
-    }
+//    val name = FormatDateUseCase().getDateNowForName()
+//    val contentValues = ContentValues().apply {
+//        put(MediaStore.MediaColumns.DISPLAY_NAME, name)
+//        put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
+//        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+//            put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/Landing_diary-Image")
+//        }
+//    }
+
+    val photoFile = File(getOutputDirectory(context), FormatDateUseCase().getDateNowForName() + ".jpg")
     val outputOptions = ImageCapture.OutputFileOptions
-        .Builder(
-            context.contentResolver,
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-            contentValues
-        )
+        .Builder(photoFile)
         .build()
+//    val outputOptions = ImageCapture.OutputFileOptions
+//        .Builder(
+//            context.contentResolver,
+//            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+//            contentValues
+//        )
+//        .build()
     imageCapture.takePicture(
         outputOptions,
         ContextCompat.getMainExecutor(context),
         object : ImageCapture.OnImageSavedCallback {
             override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
                 println("Successs")
-                saveImg(outputFileResults.savedUri ?: Uri.EMPTY)
+//                saveImg(outputFileResults.savedUri ?: Uri.EMPTY)
+                Uri.fromFile(photoFile).let(saveImg)
                 navigateBack()
             }
 
@@ -157,5 +162,11 @@ private fun captureImage(
 
         })
 
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+private fun getOutputDirectory(context: Context): File {
+    val mediaDir = context.getExternalFilesDir(DIRECTORY_PICTURES)
+    return if (mediaDir != null && mediaDir.exists()) mediaDir else context.filesDir
 }
 
