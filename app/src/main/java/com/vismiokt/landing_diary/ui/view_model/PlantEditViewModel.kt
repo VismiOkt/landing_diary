@@ -19,6 +19,7 @@ import com.vismiokt.landing_diary.domain.PlantDetails
 import com.vismiokt.landing_diary.domain.toPlant
 import com.vismiokt.landing_diary.domain.toPlantDetails
 import com.vismiokt.landing_diary.navigation.Screen
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.filterNotNull
@@ -27,16 +28,19 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.io.File
+import javax.inject.Inject
 
+@HiltViewModel
 @RequiresApi(Build.VERSION_CODES.O)
-class PlantEditViewModel (private val repository: PlantsRepository,
-                          savedStateHandle: SavedStateHandle
+class PlantEditViewModel @Inject constructor(
+    private val repository: PlantsRepository,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
 
     private val plantId: Int = checkNotNull(savedStateHandle[Screen.PlantCardDestination.plantId])
 
-//    val uiState: StateFlow<PlantEditUiState> =
+    //    val uiState: StateFlow<PlantEditUiState> =
 //        repository.getPlantStream(plantId)
 //            .filterNotNull()
 //            .map {
@@ -58,7 +62,8 @@ class PlantEditViewModel (private val repository: PlantsRepository,
     init {
         viewModelScope.launch {
             plantUiState = PlantEditUiState(
-                plantDetails = repository.getPlantStream(plantId).filterNotNull().map { it.toPlantDetails() }.first(),
+                plantDetails = repository.getPlantStream(plantId).filterNotNull()
+                    .map { it.toPlantDetails() }.first(),
             )
         }
         initialList(plantId)
@@ -74,14 +79,14 @@ class PlantEditViewModel (private val repository: PlantsRepository,
     suspend fun imageUriListToUriList(imageUriList: Flow<List<ImageUri>>): List<Uri> {
         return imageUriList.map {
             it.map { uri ->
-                uri.uriImg }
+                uri.uriImg
+            }
         }.stateIn(viewModelScope).value
     }
 
 //    fun imageUriListToUriList(imageUriList: List<ImageUri>): List<Uri> {
 //        return imageUriList.map { it.uriImg }
 //    }
-
 
 
     private fun validatePlant(plantDetails: PlantDetails = plantUiState.plantDetails): Boolean {
@@ -111,7 +116,7 @@ class PlantEditViewModel (private val repository: PlantsRepository,
 
     private fun filterForImgList(element: Uri, list: List<Uri>): Boolean {
         list.forEach {
-            if(element == it) return true
+            if (element == it) return true
         }
         return false
     }
@@ -119,16 +124,20 @@ class PlantEditViewModel (private val repository: PlantsRepository,
     @RequiresApi(Build.VERSION_CODES.O)
     fun savePlant(plantDetails: PlantDetails, context: Context) {
         val contentResolver = context.contentResolver
-        val resultAdd = _uriImgList.value.filterNot { filterForImgList(it, uriImgListInDatabase.value) }
-        val resultDelete = uriImgListInDatabase.value.filterNot { filterForImgList(it, _uriImgList.value) }
+        val resultAdd =
+            _uriImgList.value.filterNot { filterForImgList(it, uriImgListInDatabase.value) }
+        val resultDelete =
+            uriImgListInDatabase.value.filterNot { filterForImgList(it, _uriImgList.value) }
 
         if (validatePlant()) {
             viewModelScope.launch {
                 repository.updatePlant(plantUiState.plantDetails.toPlant())
                 if (resultAdd.isNotEmpty()) {
-                    val resultAddNew = resultAdd.toMutableList().apply { replaceAll { uri ->
-                        saveImageToExternalStorage(context, uri)
-                    }  }
+                    val resultAddNew = resultAdd.toMutableList().apply {
+                        replaceAll { uri ->
+                            saveImageToExternalStorage(context, uri)
+                        }
+                    }
                     //    resultAdd.forEach { uri: Uri? -> uri?.let {  } }
 
                     repository.addImageUriList(resultAddNew.map {
@@ -148,7 +157,7 @@ class PlantEditViewModel (private val repository: PlantsRepository,
             if (resultDelete.isNotEmpty()) {
                 resultDelete.forEach {
                     try {
-  //                      contentResolver.delete(it, null, null)
+                        //                      contentResolver.delete(it, null, null)
                         it.toFile().delete()
                     } catch (ex: Exception) {
 //                    } catch (ex: SecurityException) {
@@ -157,24 +166,23 @@ class PlantEditViewModel (private val repository: PlantsRepository,
                 }
             }
         }
-     }
+    }
 
 
-    private fun saveImageToExternalStorage(context: Context, uri: Uri) : Uri {
+    private fun saveImageToExternalStorage(context: Context, uri: Uri): Uri {
         val name = FormatDateUseCase().getDateNowForName() + ".jpg"
         val inputStream = context.contentResolver.openInputStream(uri)
         val file = File(context.getExternalFilesDir(DIRECTORY_PICTURES), name)
- //               val outputStream = context.openFileOutput(name, Context.MODE_PRIVATE)
+        //               val outputStream = context.openFileOutput(name, Context.MODE_PRIVATE)
         var uriNew: Uri = Uri.EMPTY
         inputStream?.use { input ->
             file.outputStream().use { output ->
-                    input.copyTo(output)
-                    uriNew = Uri.fromFile(file)
-                }
+                input.copyTo(output)
+                uriNew = Uri.fromFile(file)
+            }
         }
         return uriNew
     }
-
 
 
     fun closeDatePickerDialog() {

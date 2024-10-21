@@ -45,13 +45,12 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.vismiokt.landing_diary.R
 import com.vismiokt.landing_diary.data.CategoryPlant
 import com.vismiokt.landing_diary.data.ResultPlant
 import com.vismiokt.landing_diary.domain.FormatDateUseCase
 import com.vismiokt.landing_diary.domain.PlantDetails
-import com.vismiokt.landing_diary.ui.view_model.AppViewModelProvider
 import com.vismiokt.landing_diary.ui.view_model.PlantEntryUiState
 import com.vismiokt.landing_diary.ui.view_model.PlantEntryViewModel
 import kotlinx.coroutines.flow.Flow
@@ -65,7 +64,8 @@ fun PlantEntryScreen(
     navigateBack: () -> Unit,
 
 ) {
-    val viewModel: PlantEntryViewModel = viewModel(factory = AppViewModelProvider.Factory)
+  //  val viewModel: PlantEntryViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    val viewModel: PlantEntryViewModel = hiltViewModel()
     val context = LocalContext.current
     val toastText = stringResource(R.string.entry_plant_required_field)
 

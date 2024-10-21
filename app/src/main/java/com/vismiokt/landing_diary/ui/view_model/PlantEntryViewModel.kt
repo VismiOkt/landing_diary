@@ -15,13 +15,16 @@ import com.vismiokt.landing_diary.data.PlantsRepository
 import com.vismiokt.landing_diary.domain.FormatDateUseCase
 import com.vismiokt.landing_diary.domain.PlantDetails
 import com.vismiokt.landing_diary.domain.toPlant
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import java.io.File
+import javax.inject.Inject
 
+@HiltViewModel
 @RequiresApi(Build.VERSION_CODES.O)
-class PlantEntryViewModel(private val repository: PlantsRepository) : ViewModel() {
+class PlantEntryViewModel @Inject constructor (private val repository: PlantsRepository) : ViewModel() {
 
     var plantUiState by mutableStateOf(PlantEntryUiState())
         private set

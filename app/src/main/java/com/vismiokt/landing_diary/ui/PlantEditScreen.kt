@@ -52,7 +52,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.vismiokt.landing_diary.R
@@ -60,7 +60,6 @@ import com.vismiokt.landing_diary.data.CategoryPlant
 import com.vismiokt.landing_diary.data.ResultPlant
 import com.vismiokt.landing_diary.domain.FormatDateUseCase
 import com.vismiokt.landing_diary.domain.PlantDetails
-import com.vismiokt.landing_diary.ui.view_model.AppViewModelProvider
 import com.vismiokt.landing_diary.ui.view_model.PlantEditUiState
 import com.vismiokt.landing_diary.ui.view_model.PlantEditViewModel
 import kotlinx.coroutines.flow.Flow
@@ -74,7 +73,8 @@ fun PlantEditScreen(
     navigateBack: () -> Unit,
     navigateToPlantDetails: (Int) -> Unit
 ) {
-    val viewModel: PlantEditViewModel = viewModel(factory = AppViewModelProvider.Factory)
+//    val viewModel: PlantEditViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    val viewModel: PlantEditViewModel = hiltViewModel()
     val uiState = viewModel.plantUiState
     val context = LocalContext.current
     val toastText = stringResource(R.string.entry_plant_required_field)

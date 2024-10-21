@@ -15,6 +15,7 @@ import com.vismiokt.landing_diary.domain.PlantDetails
 import com.vismiokt.landing_diary.domain.toPlant
 import com.vismiokt.landing_diary.domain.toPlantDetails
 import com.vismiokt.landing_diary.navigation.Screen
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,9 +28,11 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
+@HiltViewModel
 @RequiresApi(Build.VERSION_CODES.O)
-class PlantCardViewModel(
+class PlantCardViewModel @Inject constructor (
     private val repository: PlantsRepository,
     savedStateHandle: SavedStateHandle
     ) : ViewModel() {
