@@ -13,11 +13,11 @@ import com.vismiokt.landing_diary.LdApplication
 object AppViewModelProvider {
     @RequiresApi(Build.VERSION_CODES.O)
     val Factory = viewModelFactory {
-        initializer {
-            HomeViewModel(
-                ldApplication().container.plantsRepository
-            )
-        }
+//        initializer {
+//            HomeViewModel(
+//                ldApplication().container.plantsRepository
+//            )
+//        }
         initializer {
             PlantEntryViewModel(ldApplication().container.plantsRepository)
         }

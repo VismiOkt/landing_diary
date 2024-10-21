@@ -3,8 +3,9 @@ package com.vismiokt.landing_diary.data
 import android.net.Uri
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
+import javax.inject.Inject
 
-class OfflinePlantsRepository(private val plantDao: PlantDao) : PlantsRepository {
+class OfflinePlantsRepository @Inject constructor (private val plantDao: PlantDao) : PlantsRepository {
     override suspend fun insertPlant(plant: Plant): Long = plantDao.insertPlant(plant)
 
     override suspend fun updatePlant(plant: Plant) = plantDao.updatePlant(plant)

@@ -48,6 +48,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.vismiokt.landing_diary.R
 import com.vismiokt.landing_diary.data.CategoryPlant
@@ -68,7 +69,8 @@ fun HomeScreen(
 
 
 ) {
-    val viewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory)
+ //   val viewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    val viewModel: HomeViewModel = hiltViewModel()
     val uiState = viewModel.homeUiState.collectAsState()
     val plants = viewModel.resPlants.collectAsState(initial = listOf<Plant>())
     val searchText = viewModel.searchText.collectAsState("")
