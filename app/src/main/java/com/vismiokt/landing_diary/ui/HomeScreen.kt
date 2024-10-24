@@ -58,16 +58,12 @@ fun HomeScreen(
     drawerState: DrawerState,
     navigateToPlantEntry: () -> Unit,
     navigateToPlantDetails: (Int) -> Unit,
-
-
-) {
- //   val viewModel: HomeViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    ) {
     val viewModel: HomeViewModel = hiltViewModel()
     val uiState = viewModel.homeUiState.collectAsState()
     val plants = viewModel.resPlants.collectAsState(initial = listOf<Plant>())
     val searchText = viewModel.searchText.collectAsState("")
     val isSearching = viewModel.isSearching.collectAsState()
-
 
     Scaffold(
         topBar = {
@@ -83,7 +79,7 @@ fun HomeScreen(
             }
         }
     ) { padding ->
-        Column (
+        Column(
             modifier = Modifier
                 .padding(
                     start = padding.calculateStartPadding(LocalLayoutDirection.current),
@@ -97,7 +93,7 @@ fun HomeScreen(
                     onSearchTextChange = viewModel::onSearchTextChange,
                     onClearSearchText = viewModel::onClearSearchText,
 
-                )
+                    )
             }
             FilterAppBar(
                 uiState,
@@ -165,7 +161,11 @@ fun FilterAppBar(
                                 expanded = true
                             },
                             label = {
-                                Text(text = stringResource(uiState.value.filterCategory?.title ?: it.title))
+                                Text(
+                                    text = stringResource(
+                                        uiState.value.filterCategory?.title ?: it.title
+                                    )
+                                )
                             },
                             trailingIcon = {
                                 Icon(Icons.Outlined.ArrowDropDown, contentDescription = null)
@@ -212,7 +212,11 @@ fun FilterAppBar(
                                 expanded = true
                             },
                             label = {
-                                Text(text = stringResource(uiState.value.filterResult?.text ?: it.title))
+                                Text(
+                                    text = stringResource(
+                                        uiState.value.filterResult?.text ?: it.title
+                                    )
+                                )
                             },
                             trailingIcon = {
                                 Icon(Icons.Outlined.ArrowDropDown, contentDescription = null)
@@ -308,11 +312,7 @@ fun TopAppBarSearch(
     onSearchTextChange: (String) -> Unit,
     onClearSearchText: () -> Unit,
 ) {
-
-
-    Column(modifier = Modifier
-
-    ) {
+    Column(modifier = Modifier) {
         OutlinedTextField(
             value = searchText.value,
             onValueChange = onSearchTextChange,
@@ -325,6 +325,7 @@ fun TopAppBarSearch(
                 }
             },
             shape = RoundedCornerShape(20.dp),
+            singleLine = true,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 8.dp, end = 8.dp)

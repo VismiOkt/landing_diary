@@ -32,6 +32,7 @@ import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SmallFloatingActionButton
@@ -73,16 +74,16 @@ fun PlantEditScreen(
     navigateBack: () -> Unit,
     navigateToPlantDetails: (Int) -> Unit
 ) {
-//    val viewModel: PlantEditViewModel = viewModel(factory = AppViewModelProvider.Factory)
     val viewModel: PlantEditViewModel = hiltViewModel()
     val uiState = viewModel.plantUiState
     val context = LocalContext.current
-    val toastText = stringResource(R.string.entry_plant_required_field)
+    val toastTextName = stringResource(R.string.entry_plant_required_field)
+    val toastTextSaveImageError = stringResource(R.string.entry_plant_error_save_image)
+
     Scaffold(
         topBar = {
             TopBar(
                 uiState.plantDetails.nameVariety,
-                alpha = 0f,
                 onBackButton = navigateBack,
             )
         },
@@ -95,10 +96,11 @@ fun PlantEditScreen(
             openDatePickerDialog = viewModel::openDatePickerDialog,
             onSave = {
                 viewModel.savePlant(uiState.plantDetails, context)
-                if (viewModel.plantUiState.isEntryValid) {
+                if (viewModel.plantUiState.isEntryValid && !viewModel.plantUiState.imageSaveError) {
                     navigateToPlantDetails(uiState.plantDetails.id)
                 } else {
-                    Toast.makeText(context, toastText, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, if (!viewModel.plantUiState.isEntryValid) toastTextName else toastTextSaveImageError, Toast.LENGTH_SHORT).show()
+                    viewModel.resetImageSaveError()
                 }
             },
             setDate = viewModel::setDate,
@@ -117,8 +119,6 @@ fun PlantEditScreen(
                 .fillMaxWidth()
         )
     }
-
-
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -140,11 +140,12 @@ fun PlantEditBody(
 ) {
 
     val plantDetails = plantUiState.plantDetails
+    val context = LocalContext.current
+    val toastText = stringResource(R.string.entry_plant_error_date)
 
     if (plantUiState.showCamera) {
-        RequiredPermission (navigateBack = { closeCamera() }, saveImg = saveImgUri )
+        RequiredPermission(navigateBack = { closeCamera() }, saveImg = saveImgUri)
     }
-
     if (plantUiState.openDialogCalendar) {
         val datePickerState = rememberDatePickerState()
         DatePickerDialog(
@@ -154,12 +155,19 @@ fun PlantEditBody(
             confirmButton = {
                 TextButton(
                     onClick = {
-                        onValueChange(
-                            plantDetails.copy(
-                                timePlantSeeds = FormatDateUseCase().convertMillisToLocalDate(datePickerState.selectedDateMillis ?: 0)
+                        if (datePickerState.selectedDateMillis == null) {
+                            Toast.makeText(context, toastText, Toast.LENGTH_SHORT).show()
+                        } else {
+                            onValueChange(
+                                plantDetails.copy(
+                                    timePlantSeeds = FormatDateUseCase().convertMillisToLocalDate(
+                                        datePickerState.selectedDateMillis ?: 0
+                                    )
+                                )
                             )
-                        )
-                        closeDatePickerDialog()
+                            closeDatePickerDialog()
+                        }
+
                     },
                 ) {
                     Text(stringResource(R.string.app_ok))
@@ -200,7 +208,7 @@ fun PlantEditBody(
         ) {
             OutlinedTextField(
                 modifier = Modifier
-                    .menuAnchor()
+                    .menuAnchor(type = MenuAnchorType.PrimaryEditable, enabled = true)
                     .fillMaxWidth()
                     .padding(start = 8.dp, end = 8.dp, bottom = 8.dp),
                 value = stringResource(plantDetails.category.title),
@@ -238,7 +246,13 @@ fun PlantEditBody(
                 value = setDate(plantDetails),
                 label = { Text(stringResource(R.string.entry_plant_time_plant_seeds_input)) },
                 onValueChange = {
-                    onValueChange(plantDetails.copy(timePlantSeeds = FormatDateUseCase().convertMillisToLocalDate(it.toLongOrNull() ?: 0L)))
+                    onValueChange(
+                        plantDetails.copy(
+                            timePlantSeeds = FormatDateUseCase().convertMillisToLocalDate(
+                                it.toLongOrNull() ?: 0L
+                            )
+                        )
+                    )
                 })
             IconButton(
                 onClick = {
@@ -276,7 +290,7 @@ fun PlantEditBody(
         ) {
             OutlinedTextField(
                 modifier = Modifier
-                    .menuAnchor()
+                    .menuAnchor(type = MenuAnchorType.PrimaryEditable, enabled = true)
                     .fillMaxWidth()
                     .padding(start = 8.dp, end = 8.dp, bottom = 8.dp),
                 value = stringResource(plantDetails.result.text),
@@ -335,7 +349,6 @@ fun PlantEditBody(
                 saveImgUri(it)
             }
         )
-
         Button(
             onClick = {
                 openCamera()
@@ -347,7 +360,6 @@ fun PlantEditBody(
             Text(text = stringResource(R.string.entry_plant_make_photo))
         }
 
-
         Button(
             onClick = { onSave() },
             modifier = Modifier
@@ -356,8 +368,6 @@ fun PlantEditBody(
         ) {
             Text(text = stringResource(R.string.plant_edit_save))
         }
-
-
     }
 }
 

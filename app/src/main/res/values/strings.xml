@@ -24,12 +24,15 @@
     <string name="entry_plant_place_of_purchase_input">Место покупки</string>
     <string name="entry_plant_result_input">Результат</string>
     <string name="entry_plant_note_input">Примечание</string>
+    <string name="entry_plant_error_date">Выберите число</string>
     <string name="entry_plant_category_input">Категория</string>
     <string name="entry_plant_time_plant_seeds_input">Дата посадки семян</string>
     <string name="entry_plant_make_photo">Сделать фото</string>
     <string name="entry_plant_photograph">Сфотографировать</string>
     <string name="entry_plant_required_field">Поле \"Название\" является обязательным для заполнения</string>
     <string name="entry_plant_add_image_from_gallery">Добавить изображение из галереи</string>
+    <string name="entry_plant_error_photograph">Ошибка сохранения изображения</string>
+    <string name="entry_plant_error_save_image">Ошибка сохранения изображения. Проверьте свободное место на устройстве</string>
     <string name="app_cancel">Отменить</string>
     <string name="app_ok">ОК</string>
     <string name="app_save">Сохранить</string>

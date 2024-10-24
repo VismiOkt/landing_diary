@@ -31,14 +31,12 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -63,7 +61,6 @@ fun LandingDiaryApp() {
         drawerContent = {
             ModalDrawerSheet {
                 ModalNavigationApp(
-
                     navigateToAboutApp = {
                         navController.navigate(Screen.AboutAppDestination.route) {
                             launchSingleTop = true
@@ -71,7 +68,6 @@ fun LandingDiaryApp() {
                         coroutineScope.launch {
                             drawerState.close()
                         }
-
                     },
                     navigateToHomeScreenAllPlants = {
                         navController.navigate(Screen.HomeDestination.route) {
@@ -98,10 +94,7 @@ fun LandingDiaryApp() {
             navController = navController
         )
     }
-
-
 }
-
 
 @Composable
 fun ModalNavigationApp(
@@ -138,12 +131,12 @@ fun ModalNavigationApp(
         }
         HorizontalDivider()
         NavigationDrawerItem(
-            label = { Text(text = stringResource(R.string.menu_all_plants))},
+            label = { Text(text = stringResource(R.string.menu_all_plants)) },
             selected = false,
             onClick = { navigateToHomeScreenAllPlants() }
         )
         NavigationDrawerItem(
-            label = { Text(text = stringResource(R.string.menu_settings))},
+            label = { Text(text = stringResource(R.string.menu_settings)) },
             selected = false,
             onClick = { navigateToSettings() }
         )
@@ -154,18 +147,16 @@ fun ModalNavigationApp(
                         Icons.Outlined.Info,
                         contentDescription = stringResource(R.string.menu_about_app)
                     )
-                    Text(text = stringResource(R.string.menu_about_app),
-                        modifier = Modifier.padding(start = 4.dp))
+                    Text(
+                        text = stringResource(R.string.menu_about_app),
+                        modifier = Modifier.padding(start = 4.dp)
+                    )
                 }
             },
             selected = false,
             onClick = { navigateToAboutApp() }
         )
-
-
     }
-
-
 }
 
 
@@ -205,7 +196,6 @@ fun LdTopAppBar(
 @Composable
 fun TopBar(
     title: String,
-    alpha: Float,
     onBackButton: () -> Unit
 ) {
     TopAppBar(
@@ -220,9 +210,6 @@ fun TopBar(
                 )
             }
         },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = Color.Transparent.copy(alpha = alpha)
-        ),
     )
 }
 
@@ -230,7 +217,6 @@ fun TopBar(
 @Composable
 fun TopBar(
     title: String,
-    alpha: Float,
     actionIcon: ImageVector,
     onActionIcon: () -> Unit,
     onBackButton: () -> Unit
@@ -255,9 +241,6 @@ fun TopBar(
                 )
             }
         },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = Color.Transparent.copy(alpha = alpha)
-        ),
     )
 }
 

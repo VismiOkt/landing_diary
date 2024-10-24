@@ -41,7 +41,6 @@ fun SettingsScreen(
         topBar = {
             TopBar(
                 stringResource(R.string.menu_settings),
-                alpha = 0f,
                 onBackButton = navigateBack
             )
         },

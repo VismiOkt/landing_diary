@@ -76,7 +76,6 @@ import java.util.Locale
 @Composable
 fun PlantCard(
     navigateToEditPlant: (Int) -> Unit,
-//    viewModel: PlantCardViewModel = viewModel(factory = AppViewModelProvider.Factory),
     viewModel: PlantCardViewModel = hiltViewModel(),
     navigateBack: () -> Unit
 ) {
@@ -92,17 +91,13 @@ fun PlantCard(
                 onActionIcon = {
                     viewModel.openDeleteDialog()
                 },
-                alpha = 0f,
                 onBackButton = navigateBack
             )
-
         },
         floatingActionButton = {
             FloatingActionButton(onClick = { navigateToEditPlant(plantDetails.value.id) }) {
                 Icon(Icons.Outlined.Create, contentDescription = null)
             }
-
-
         }
     ) { padding ->
         if (uiState.value.openDeleteDialog) {
@@ -115,7 +110,6 @@ fun PlantCard(
                     }) {
                         Text(text = stringResource(R.string.plant_card_delete_dialog_ok))
                     }
-
                 },
                 text = {
                     Text(text = stringResource(R.string.plant_card_delete_dialog_text))
@@ -126,7 +120,6 @@ fun PlantCard(
                     }
                 }
             )
-
         }
         val state = rememberScrollState()
         Card(
@@ -165,9 +158,6 @@ fun PlantCard(
                         Text(
                             text = FormatDateUseCase().getDateSet(plantDetails.value),
                             textAlign = TextAlign.Center,
-                            //  style = MaterialTheme.typography.titleLarge,
-//                        modifier = Modifier
-//                            .padding(start = 16.dp, end = 16.dp),
                         )
                         Spacer(modifier = Modifier.height(6.dp))
                         Row {
@@ -178,17 +168,15 @@ fun PlantCard(
                             Text(text = plantDetails.value.price)
                             Text(
                                 text = " " + Currency.getInstance(Locale.getDefault()).symbol,
-                                //  textAlign = TextAlign.Center
                             )
                         }
                     }
                 }
-                HorizontalDivider()
-                Row {
+                HorizontalDivider(modifier = Modifier.padding(top = 16.dp))
+                Row(modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)) {
                     Text(text = stringResource(R.string.entry_plant_place_of_purchase_input) + ": ")
                     Text(text = plantDetails.value.placeOfPurchase)
                 }
-
                 Text(text = stringResource(R.string.entry_plant_note_input) + ": ")
                 Text(text = plantDetails.value.note)
                 Card(
@@ -216,14 +204,10 @@ fun PlantCard(
                 )
                 if (uiState.value.openImageDialog) {
                     Dialog(onDismissRequest = { viewModel.closeImageDialog() }) {
-                        //   if (uiState.value.openImageUri == Uri.EMPTY)
-
                         TransformableImage(uriImage = uiState.value.openImageUri) {
                         }
-
                     }
                 }
-
             }
         }
     }

@@ -1,7 +1,5 @@
 package com.vismiokt.landing_diary
 
-//import com.google.firebase.firestore.ktx.firestore
-//import com.google.firebase.ktx.Firebase
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -17,9 +15,6 @@ class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        val fs = Firebase.firestore
-//        fs.collection("plants").document().set(Plant(1, "tutu"))
-//        enableEdgeToEdge()
 
         setContent {
             Landing_diaryTheme {
@@ -27,6 +22,8 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+
 }
 
 

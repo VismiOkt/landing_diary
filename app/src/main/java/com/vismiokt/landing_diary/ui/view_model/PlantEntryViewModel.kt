@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.vismiokt.landing_diary.data.ImageUri
 import com.vismiokt.landing_diary.data.PlantsRepository
+import com.vismiokt.landing_diary.domain.ExternalStorageUseCase
 import com.vismiokt.landing_diary.domain.FormatDateUseCase
 import com.vismiokt.landing_diary.domain.PlantDetails
 import com.vismiokt.landing_diary.domain.toPlant
@@ -79,14 +80,22 @@ class PlantEntryViewModel @Inject constructor (private val repository: PlantsRep
 
     private fun saveImageToExternalStorage(context: Context, uri: Uri) : Uri {
         val name = FormatDateUseCase().getDateNowForName() + ".jpg"
-        val inputStream = context.contentResolver.openInputStream(uri)
-        val file = File(context.getExternalFilesDir(DIRECTORY_PICTURES), name)
+        val file = if (ExternalStorageUseCase().isExternalStorageWritable()) {
+            File(context.getExternalFilesDir(DIRECTORY_PICTURES), name)
+        } else {
+            File(context.filesDir, name)
+        }
         var uriNew: Uri = Uri.EMPTY
-        inputStream?.use { input ->
-            file.outputStream().use { output ->
-                input.copyTo(output)
-                uriNew = Uri.fromFile(file)
+        try {
+            val inputStream = context.contentResolver.openInputStream(uri)
+            inputStream?.use { input ->
+                file.outputStream().use { output ->
+                    input.copyTo(output)
+                    uriNew = Uri.fromFile(file)
+                }
             }
+        } catch (ex: Exception) {
+            plantUiState = plantUiState.copy(imageSaveError = true)
         }
         return uriNew
     }
@@ -108,6 +117,10 @@ class PlantEntryViewModel @Inject constructor (private val repository: PlantsRep
         plantUiState = plantUiState.copy(showCamera = true)
     }
 
+    fun resetImageSaveError() {
+        plantUiState = plantUiState.copy(imageSaveError = false)
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     fun setDate(plantDetails: PlantDetails): String {
         return FormatDateUseCase().getDateSet(plantUiState.plantDetails)
@@ -122,7 +135,8 @@ data class PlantEntryUiState @RequiresApi(Build.VERSION_CODES.O) constructor(
     val isEntryValid: Boolean = false,
     val openDialogCalendar: Boolean = false,
     val openCameraLd: Boolean = false,
-    val showCamera: Boolean = false
+    val showCamera: Boolean = false,
+    val imageSaveError: Boolean = false
 )
 
 

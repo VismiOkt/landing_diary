@@ -2,15 +2,13 @@ package com.vismiokt.landing_diary.ui.theme
 
 import android.app.Activity
 import android.os.Build
-import androidx.appcompat.app.AppCompatDelegate
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
-import androidx.compose.material3.Typography
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.SideEffect
@@ -21,7 +19,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.vismiokt.landing_diary.data.AppTheme
 import com.vismiokt.landing_diary.ui.view_model.SettingsViewModel
 
@@ -265,6 +262,7 @@ val unspecified_scheme = ColorFamily(
     Color.Unspecified, Color.Unspecified, Color.Unspecified, Color.Unspecified
 )
 
+//@RequiresApi(Build.VERSION_CODES.S)
 @Composable
 fun Landing_diaryTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
@@ -284,7 +282,7 @@ fun Landing_diaryTheme(
 
 
     val colorScheme =
-        if( dynamicColor && uiState.value.supportDynamicTheme) {
+        if( dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             when (uiState.value.appTheme) {
                 AppTheme.SYSTEM -> if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(
                     context
@@ -293,7 +291,7 @@ fun Landing_diaryTheme(
                 AppTheme.DARK -> dynamicDarkColorScheme(context)
                 AppTheme.LIGHT -> dynamicLightColorScheme(context)
             }
-        }else {
+        } else {
                 when (uiState.value.appTheme) {
                     AppTheme.SYSTEM -> if (darkTheme) darkScheme else lightScheme
                     AppTheme.DARK  -> darkScheme
@@ -301,19 +299,6 @@ fun Landing_diaryTheme(
             }
 
     }
-
-
-
-
-//    val colorScheme = when {
-//        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-//            val context = LocalContext.current
-//            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-//        }
-//
-//        darkTheme -> darkScheme
-//        else -> lightScheme
-//    }
 
     val view = LocalView.current
     if (!view.isInEditMode) {

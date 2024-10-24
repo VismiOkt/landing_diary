@@ -3,6 +3,7 @@ package com.vismiokt.landing_diary.ui.view_model
 import android.content.Context
 import android.net.Uri
 import android.os.Build
+import android.os.Environment
 import android.os.Environment.DIRECTORY_PICTURES
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.getValue
@@ -14,6 +15,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.vismiokt.landing_diary.data.ImageUri
 import com.vismiokt.landing_diary.data.PlantsRepository
+import com.vismiokt.landing_diary.domain.ExternalStorageUseCase
 import com.vismiokt.landing_diary.domain.FormatDateUseCase
 import com.vismiokt.landing_diary.domain.PlantDetails
 import com.vismiokt.landing_diary.domain.toPlant
@@ -28,6 +30,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.io.File
+import java.io.IOException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -150,9 +153,7 @@ class PlantEditViewModel @Inject constructor(
                 }
                 if (resultDelete.isNotEmpty()) {
                     resultDelete.forEach { repository.deleteImageUri(it, plantDetails.id) }
-
                 }
-
             }
             if (resultDelete.isNotEmpty()) {
                 resultDelete.forEach {
@@ -165,6 +166,7 @@ class PlantEditViewModel @Inject constructor(
                     }
                 }
             }
+
         }
     }
 
@@ -172,14 +174,23 @@ class PlantEditViewModel @Inject constructor(
     private fun saveImageToExternalStorage(context: Context, uri: Uri): Uri {
         val name = FormatDateUseCase().getDateNowForName() + ".jpg"
         val inputStream = context.contentResolver.openInputStream(uri)
-        val file = File(context.getExternalFilesDir(DIRECTORY_PICTURES), name)
-        //               val outputStream = context.openFileOutput(name, Context.MODE_PRIVATE)
         var uriNew: Uri = Uri.EMPTY
-        inputStream?.use { input ->
-            file.outputStream().use { output ->
-                input.copyTo(output)
-                uriNew = Uri.fromFile(file)
+        val file = if (ExternalStorageUseCase().isExternalStorageWritable()) {
+            File(context.getExternalFilesDir(DIRECTORY_PICTURES), name)
+        } else {
+            File(context.filesDir, name)
+        }
+        try {
+//            val outputStream = context.openFileOutput(name, Context.MODE_PRIVATE)
+            inputStream?.use { input ->
+                file.outputStream().use { output ->
+                    input.copyTo(output)
+                    uriNew = Uri.fromFile(file)
+                }
+
             }
+        } catch (_: IOException) {
+            plantUiState = plantUiState.copy(imageSaveError = true)
         }
         return uriNew
     }
@@ -203,6 +214,10 @@ class PlantEditViewModel @Inject constructor(
         plantUiState = plantUiState.copy(showCamera = true)
     }
 
+    fun resetImageSaveError() {
+        plantUiState = plantUiState.copy(imageSaveError = false)
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     fun setDate(plantDetails: PlantDetails): String {
         return FormatDateUseCase().getDateSet(plantUiState.plantDetails)
@@ -216,6 +231,7 @@ data class PlantEditUiState @RequiresApi(Build.VERSION_CODES.O) constructor(
     val isEntryValid: Boolean = true,
     val openDialogCalendar: Boolean = false,
     val openCameraLd: Boolean = false,
-    val showCamera: Boolean = false
+    val showCamera: Boolean = false,
+    val imageSaveError: Boolean = false
 )
 
