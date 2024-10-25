@@ -16,8 +16,6 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object RoomDatabaseModule {
 
-
-
     @Singleton
     @Provides
     fun providesDatabase (application: Application) = LdDatabase.getDatabase(application)
